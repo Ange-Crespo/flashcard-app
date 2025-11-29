@@ -1,0 +1,104 @@
+/* Import Design System */
+@import './styles/design-system.css';
+
+/* Base Reset and Global Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  height: 100dvh; /* Dynamic viewport height for mobile browsers */
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent scrolling on body */
+}
+
+body {
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Roboto',
+    sans-serif;
+  background-color: #121214;
+  color: #ffffff;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Account for safe areas on mobile devices */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-top: env(safe-area-inset-top, 0px);
+  box-sizing: border-box;
+}
+
+/* CSS Variables - Default values (will be overridden by theme) */
+:root {
+  --primary-yellow: #3b82f6; /* Default to ocean blue */
+  --primary-yellow-hover: #2563eb;
+  --secondary-color: #06b6d4;
+  --secondary-black: #0f172a; /* Default to ocean background */
+  --surface-color: #1e293b;
+  --surface-hover: #334155;
+  --tertiary-white: #ffffff;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  --success-color: #10b981;
+  --error-color: #ef4444;
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  --shadow-medium: rgba(0, 0, 0, 0.2);
+  --shadow-heavy: rgba(0, 0, 0, 0.4);
+}
+
+/* Utility Classes */
+.btn-yellow {
+  background: var(--primary-yellow);
+  color: var(--secondary-black);
+  border: none;
+  border-radius: 9999px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-yellow:hover {
+  background: #f7d94a;
+  transform: translateY(-1px);
+}
+
+.badge-like {
+  color: #10b981;
+  border: 3px solid #10b981;
+  transform: rotate(-18deg);
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.badge-pass {
+  color: #9ca3af;
+  border: 3px solid #9ca3af;
+  transform: rotate(18deg);
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(156, 163, 175, 0.12);
+}
+
+.link-blue {
+  color: #60a5fa;
+  text-decoration: none;
+}
+
+.link-blue:hover {
+  text-decoration: underline;
+}

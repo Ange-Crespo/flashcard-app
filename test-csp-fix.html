@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CSP Fix Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+      }
+      .info {
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+      }
+      .warning {
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+      }
+      pre {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔒 CSP Fix Test</h1>
+
+    <div class="test-section info">
+      <h3>What was the problem?</h3>
+      <p>The error message was:</p>
+      <pre>
+Content-Security-Policy : Les paramètres de la page ont empêché le chargement d'une ressource (img-src) à l'adresse https://Ange-Crespo.github.io/flashcard-app/favicon.ico car elle enfreint la directive suivante : « img-src data: »</pre
+      >
+      <p>
+        This means the CSP was too restrictive for loading images from HTTPS
+        URLs.
+      </p>
+    </div>
+
+    <div class="test-section success">
+      <h3>✅ What was fixed:</h3>
+      <p><strong>Before:</strong></p>
+      <pre>img-src 'self' data: https: https://Ange-Crespo.github.io</pre>
+      <p><strong>After:</strong></p>
+      <pre>img-src 'self' data: https:</pre>
+      <p>
+        The change removes the specific domain restriction and allows all HTTPS
+        URLs for images, which is more flexible and should resolve the favicon
+        loading issue.
+      </p>
+    </div>
+
+    <div class="test-section">
+      <h3>🔍 Current CSP Policy:</h3>
+      <pre>
+default-src 'self'; 
+script-src 'self' 'unsafe-inline' 'unsafe-eval'; 
+style-src 'self' 'unsafe-inline' https://fonts.bunny.net; 
+img-src 'self' data: https:; 
+font-src 'self' https://fonts.bunny.net; 
+connect-src 'self' https:; 
+object-src 'none'; 
+base-uri 'self';</pre
+      >
+    </div>
+
+    <div class="test-section warning">
+      <h3>⚠️ Security Note:</h3>
+      <p>
+        Allowing <code>https:</code> for images means any HTTPS URL can load
+        images. This is generally safe but if you want to be more restrictive,
+        you could specify only the domains you need:
+      </p>
+      <pre>
+img-src 'self' data: https://Ange-Crespo.github.io https://fonts.bunny.net</pre
+      >
+    </div>
+
+    <div class="test-section">
+      <h3>🧪 Test Instructions:</h3>
+      <ol>
+        <li>Deploy your changes to GitHub Pages</li>
+        <li>Open the browser console (F12)</li>
+        <li>
+          Navigate to your app:
+          <a href="https://Ange-Crespo.github.io/flashcard-app/" target="_blank"
+            >https://Ange-Crespo.github.io/flashcard-app/</a
+          >
+        </li>
+        <li>Check that there are no CSP errors in the console</li>
+        <li>The favicon should load without issues</li>
+      </ol>
+    </div>
+
+    <div class="test-section">
+      <h3>📝 Files Updated:</h3>
+      <ul>
+        <li>✅ <code>dist/index.html</code></li>
+        <li>✅ <code>dist/404.html</code></li>
+        <li>✅ <code>public/404.html</code></li>
+        <li>✅ <code>index.html</code></li>
+      </ul>
+    </div>
+
+    <script>
+      // Test if we can load an image from HTTPS
+      function testImageLoading() {
+        const img = new Image();
+        img.onload = () => {
+          console.log(
+            '✅ Image loading test passed - HTTPS images are allowed'
+          );
+        };
+        img.onerror = () => {
+          console.error('❌ Image loading test failed');
+        };
+        // Test with a simple HTTPS image
+        img.src = 'https://via.placeholder.com/1x1.png';
+      }
+
+      // Test CSP by trying to load a resource
+      function testCSP() {
+        console.log('Testing CSP configuration...');
+        testImageLoading();
+      }
+
+      // Run test when page loads
+      window.addEventListener('load', testCSP);
+    </script>
+  </body>
+</html>

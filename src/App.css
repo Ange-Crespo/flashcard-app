@@ -1,0 +1,200 @@
+/* CSS Custom Properties */
+:root {
+  --header-height: 3.75rem; /* 60px */
+  --navbar-height: 5rem; /* 80px */
+  --discover-header-height: 3.75rem; /* 60px */
+  --action-space: 6.25rem; /* 100px */
+
+  /* Mobile adjustments */
+  --navbar-height-mobile: 4.375rem; /* 70px */
+  --navbar-height-small: 4.0625rem; /* 65px */
+  --action-space-mobile: 5.625rem; /* 90px */
+  --action-space-small: 5rem; /* 80px */
+}
+
+/* Main App Layout */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--secondary-black);
+  position: relative;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height for mobile browsers */
+  background-color: var(--secondary-black);
+}
+
+.app-header {
+  height: var(--header-height);
+  background-color: var(--secondary-black);
+  border-bottom: 0.0625rem solid var(--border-color); /* 1px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 10;
+}
+
+.app-title {
+  font-size: 1.25rem; /* 20px */
+  font-weight: 800;
+  color: var(--primary-yellow);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.0625rem; /* 1px */
+}
+
+.app-main {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  height: calc(100vh - var(--header-height) - var(--navbar-height));
+  height: calc(
+    100dvh - var(--header-height) - var(--navbar-height)
+  ); /* Dynamic viewport height */
+  margin-bottom: 0;
+  padding-bottom: env(
+    safe-area-inset-bottom,
+    0px
+  ); /* Account for mobile browser UI */
+}
+
+/* Bottom Navigation */
+.nav {
+  display: flex;
+  background-color: var(--secondary-black);
+  border-top: 0.0625rem solid var(--border-color); /* 1px */
+  padding: 0.5rem 0;
+  padding-bottom: calc(
+    0.5rem + env(safe-area-inset-bottom, 0px)
+  ); /* Account for mobile browser UI */
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
+  height: var(--navbar-height);
+  box-sizing: border-box;
+}
+
+.nav a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 0.5rem; /* 12px 8px */
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.75rem; /* 12px */
+  transition: all 0.2s ease;
+  border-radius: 0.5rem; /* 8px */
+  margin: 0 0.25rem; /* 4px */
+}
+
+.nav a:hover {
+  color: var(--text-primary);
+  background-color: rgba(249, 226, 91, 0.1);
+  transform: translateY(-0.0625rem); /* -1px */
+}
+
+.nav a:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.125rem rgba(249, 226, 91, 0.3); /* 2px */
+}
+
+.nav a.active {
+  color: var(--primary-yellow);
+  background-color: rgba(249, 226, 91, 0.15);
+}
+
+.nav a svg {
+  width: 1.5rem; /* 24px */
+  height: 1.5rem; /* 24px */
+  margin-bottom: 0.25rem; /* 4px */
+}
+
+/* Mobile Responsive Design */
+@media (max-width: 40rem) {
+  /* 640px */
+  #root {
+    max-width: 26.25rem; /* 420px - constrain width on mobile */
+    margin: 0 auto;
+  }
+
+  .nav {
+    height: var(--navbar-height-mobile);
+    padding: 0.375rem 0;
+    padding-bottom: calc(0.375rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .nav a {
+    padding: 0.5rem 0.375rem; /* 8px 6px */
+    font-size: 0.6875rem; /* 11px */
+  }
+
+  .nav a svg {
+    width: 1.25rem; /* 20px */
+    height: 1.25rem; /* 20px */
+  }
+
+  .app-main {
+    height: calc(100vh - var(--header-height) - var(--navbar-height-mobile));
+    height: calc(100dvh - var(--header-height) - var(--navbar-height-mobile));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+@media (max-width: 20rem) {
+  /* 320px */
+  .nav {
+    height: var(--navbar-height-small);
+    padding: 0.25rem 0;
+    padding-bottom: calc(0.25rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .nav a {
+    padding: 0.375rem 0.25rem; /* 6px 4px */
+    font-size: 0.625rem; /* 10px */
+  }
+
+  .nav a svg {
+    width: 1.125rem; /* 18px */
+    height: 1.125rem; /* 18px */
+  }
+
+  .app-main {
+    height: calc(100vh - var(--header-height) - var(--navbar-height-small));
+    height: calc(100dvh - var(--header-height) - var(--navbar-height-small));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+/* Desktop Responsive Design */
+@media (min-width: 40.0625rem) {
+  /* 641px */
+  .app-header {
+    padding: 0 2rem;
+  }
+
+  .app-title {
+    font-size: 1.5rem; /* Larger title on desktop */
+  }
+
+  .nav {
+    padding: 0.75rem 2rem;
+  }
+
+  .nav a {
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .nav a svg {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+}

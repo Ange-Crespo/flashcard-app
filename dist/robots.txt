@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://Ange-Crespo.github.io/flashcard-app/sitemap.xml

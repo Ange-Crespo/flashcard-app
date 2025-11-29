@@ -1,0 +1,232 @@
+.mapping-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+  padding: 1rem;
+}
+
+.mapping-modal {
+  width: min(48rem, 100%);
+  max-height: 90vh;
+  background: var(--tertiary-white);
+  border-radius: 1rem;
+  box-shadow: 0 1.5rem 3rem rgba(15, 23, 42, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.mapping-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.mapping-modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.mapping-modal-header p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(15, 23, 42, 0.6);
+}
+
+.mapping-icon-button {
+  border: none;
+  background: none;
+  padding: 0.35rem;
+  border-radius: 999px;
+  cursor: pointer;
+  color: rgba(15, 23, 42, 0.7);
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.mapping-icon-button:hover {
+  background: rgba(15, 23, 42, 0.08);
+  color: rgba(15, 23, 42, 0.9);
+}
+
+.mapping-form {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.mapping-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1.25rem;
+}
+
+.mapping-column {
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.mapping-column h4 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.mapping-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.mapping-field-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.75);
+}
+
+.mapping-field-group select {
+  border-radius: 0.5rem;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  background: var(--tertiary-white);
+  outline: none;
+}
+
+.mapping-field-group select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.mapping-field-group--full {
+  flex: 1 1 100%;
+}
+
+.mapping-section {
+  margin-top: 1.5rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  padding-top: 1.25rem;
+}
+
+.mapping-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.mapping-toggle-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mapping-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.8);
+}
+
+.mapping-toggle input {
+  accent-color: #6366f1;
+}
+
+.mapping-section-header button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: none;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.15);
+  color: #4c1d95;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.mapping-section-header button:hover {
+  background: rgba(99, 102, 241, 0.25);
+}
+
+.mapping-section-helper {
+  font-size: 0.85rem;
+  color: rgba(15, 23, 42, 0.6);
+  margin: 0;
+}
+
+.mapping-example-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(15, 23, 42, 0.03);
+  margin-bottom: 0.75rem;
+}
+
+.mapping-example-row .mapping-field-group {
+  flex: 1 1 12rem;
+  margin-bottom: 0;
+}
+
+.mapping-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.mapping-primary-button,
+.mapping-secondary-button {
+  border-radius: 999px;
+  border: none;
+  padding: 0.55rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.mapping-primary-button {
+  background: linear-gradient(120deg, #6366f1, #8b5cf6);
+  color: var(--tertiary-white);
+  box-shadow: 0 0.5rem 1.5rem rgba(99, 102, 241, 0.35);
+}
+
+.mapping-primary-button:hover {
+  filter: brightness(1.05);
+}
+
+.mapping-secondary-button {
+  background: rgba(15, 23, 42, 0.08);
+  color: rgba(15, 23, 42, 0.8);
+}
+
+.mapping-secondary-button:hover {
+  background: rgba(15, 23, 42, 0.15);
+}
+
+@media (max-width: 40rem) {
+  .mapping-modal {
+    max-height: 100vh;
+  }
+
+  .mapping-columns {
+    grid-template-columns: 1fr;
+  }
+}

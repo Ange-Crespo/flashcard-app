@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/flashcard-app/favicon.ico" />
+    <link rel="shortcut icon" href="/flashcard-app/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/flashcard-app/favicon.svg" />
+    <link rel="apple-touch-icon" href="/flashcard-app/favicon.svg" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Flashcard Learning App</title>
+    <style>
+      @import url('https://fonts.bunny.net/css?family=inter:400,500,700,800');
+    </style>
+    <!-- Content Security Policy -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; img-src 'self' data: https: blob:; font-src 'self' https://fonts.bunny.net; connect-src 'self' https:; object-src 'none'; base-uri 'self';"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Suppress source map errors from browser extensions -->
+    <script>
+      // Suppress source map parsing errors from browser extensions
+      const originalError = console.error;
+      console.error = function (...args) {
+        const message = args[0]?.toString() || '';
+        // Filter out source map errors from browser extensions
+        if (
+          message.includes('JSON.parse: unexpected character') &&
+          (message.includes('source-map') || message.includes('.map'))
+        ) {
+          return; // Suppress these errors
+        }
+        originalError.apply(console, args);
+      };
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
