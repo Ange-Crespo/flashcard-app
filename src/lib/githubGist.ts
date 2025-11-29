@@ -697,22 +697,16 @@ class GitHubGistService {
             }
           );
 
+          // Warn if content-type is not JSON, but try to parse anyway
           if (!rawContentType || !rawContentType.includes('application/json')) {
-            const errorMsg = "Le fichier n'est pas au format JSON valide";
-            gistDebugLogger.error(
+            gistDebugLogger.warn(
               'validate_flashcards',
-              errorMsg,
-              new Error(errorMsg),
+              'Content-type non-JSON détecté, tentative de parsing quand même',
               {
-                contentType: rawContentType,
+                contentType: rawContentType || 'unknown',
+                note: 'Le fichier pourrait être du JSON valide malgré le content-type incorrect',
               }
             );
-            return {
-              success: false,
-              error: formatGistError('validate_flashcards', errorMsg, {
-                contentType: rawContentType || 'unknown',
-              }),
-            };
           }
 
           gistDebugLogger.log('parse_json', 'Lecture du contenu du fichier');
@@ -1230,16 +1224,33 @@ class GitHubGistService {
 
             if (rawResponse.ok) {
               const rawContentType = rawResponse.headers.get('content-type');
+
+              // Warn if content-type is not JSON, but try to parse anyway
               if (
-                rawContentType &&
-                rawContentType.includes('application/json')
+                !rawContentType ||
+                !rawContentType.includes('application/json')
               ) {
+                gistDebugLogger.warn(
+                  'validate_flashcards',
+                  'Content-type non-JSON détecté depuis raw_url, tentative de parsing quand même',
+                  {
+                    fileName,
+                    contentType: rawContentType || 'unknown',
+                    note: 'Le fichier pourrait être du JSON valide malgré le content-type incorrect',
+                  }
+                );
+              }
+
+              try {
                 gistDebugLogger.log(
                   'parse_json',
                   'Parsing du contenu depuis raw_url'
                 );
-                const flashcards =
-                  (await rawResponse.json()) as GistFlashcard[];
+                const flashcardsContent = await rawResponse.text();
+                const flashcards = JSON.parse(
+                  flashcardsContent
+                ) as GistFlashcard[];
+
                 if (Array.isArray(flashcards)) {
                   gistDebugLogger.success(
                     'complete',
@@ -1265,16 +1276,12 @@ class GitHubGistService {
                     }
                   );
                 }
-              } else {
-                gistDebugLogger.error(
-                  'validate_flashcards',
-                  'Type de contenu invalide depuis raw_url',
-                  new Error('Invalid content type'),
-                  {
-                    fileName,
-                    contentType: rawContentType,
-                  }
-                );
+              } catch (parseError) {
+                const errorMsg = `Impossible de parser le fichier depuis raw_url: ${parseError instanceof Error ? parseError.message : 'Erreur de parsing'}`;
+                gistDebugLogger.error('parse_json', errorMsg, parseError, {
+                  fileName,
+                  contentType: rawContentType,
+                });
               }
             } else {
               gistDebugLogger.warn(
@@ -1446,26 +1453,19 @@ class GitHubGistService {
                 }
               );
 
+              // Warn if content-type is not JSON, but try to parse anyway
               if (
                 !rawContentType ||
                 !rawContentType.includes('application/json')
               ) {
-                const errorMsg =
-                  "Le fichier flashcards.json n'est pas au format JSON valide";
-                gistDebugLogger.error(
+                gistDebugLogger.warn(
                   'validate_flashcards',
-                  errorMsg,
-                  new Error(errorMsg),
+                  'Content-type non-JSON détecté (fallback), tentative de parsing quand même',
                   {
                     contentType: rawContentType || 'unknown',
+                    note: 'Le fichier pourrait être du JSON valide malgré le content-type incorrect',
                   }
                 );
-                return {
-                  success: false,
-                  error: formatGistError('validate_flashcards', errorMsg, {
-                    contentType: rawContentType || 'unknown',
-                  }),
-                };
               }
 
               gistDebugLogger.log(
