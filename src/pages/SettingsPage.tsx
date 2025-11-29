@@ -12,7 +12,7 @@ import { getAllThemes } from '../lib/themes';
 import { useAppStore } from '../store';
 import './SettingsPage.css';
 
-type SettingsSectionId = 'export' | 'gist' | 'theme';
+type SettingsSectionId = 'export' | 'gist' | 'theme' | 'debug';
 
 const SECTIONS: Array<{
   id: SettingsSectionId;
@@ -33,6 +33,11 @@ const SECTIONS: Array<{
     id: 'theme',
     label: 'Apparence',
     description: 'Choisir un thème de couleurs',
+  },
+  {
+    id: 'debug',
+    label: 'Debug Gist',
+    description: 'Panneau de debug pour les opérations Gist',
   },
 ];
 
@@ -398,12 +403,43 @@ export default function SettingsPage() {
     </section>
   );
 
+  const renderDebugSection = () => {
+    return (
+      <section>
+        <h2>Panneau de Debug Gist</h2>
+        <p>
+          Le panneau de debug Gist est maintenant accessible depuis n'importe
+          quelle page de l'application. Il reste visible même lorsque vous
+          naviguez entre les différentes sections.
+        </p>
+        <p>
+          Utilisez le panneau de debug pour suivre les opérations Gist en temps
+          réel, voir les erreurs, et exporter les logs pour le diagnostic.
+        </p>
+        <button
+          onClick={() => {
+            // Toggle debug panel via custom event
+            globalThis.dispatchEvent(
+              new CustomEvent('toggle-gist-debug-panel')
+            );
+          }}
+          className="btn-yellow"
+          style={{ marginTop: '16px' }}
+        >
+          Afficher le Panneau de Debug
+        </button>
+      </section>
+    );
+  };
+
   const activePanel =
     activeSection === 'export'
       ? renderExportSection()
       : activeSection === 'gist'
         ? renderGistSection()
-        : renderThemeSection();
+        : activeSection === 'theme'
+          ? renderThemeSection()
+          : renderDebugSection();
 
   return (
     <div className="settings-page">

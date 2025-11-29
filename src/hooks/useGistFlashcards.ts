@@ -5,6 +5,7 @@ import {
   getLocalDeckFlashcards,
 } from '../lib/localDecks';
 import { mockFlashcards } from '../lib/mockFlashcards';
+import { gistDebugLogger, formatGistError } from '../lib/gistDebug';
 import type {
   GistFlashcard,
   GistFlashcardFace,
@@ -128,8 +129,16 @@ export function useGistFlashcards({
     (message: string) => {
       // Prevent loading fallback multiple times for the same error
       if (hasLoadedFallbackRef.current) {
+        gistDebugLogger.warn(
+          'init',
+          'Tentative de chargement du fallback déjà effectuée, ignorée'
+        );
         return;
       }
+
+      gistDebugLogger.log('init', 'Chargement des flashcards de fallback', {
+        errorMessage: message,
+      });
 
       setError(message);
       onError?.(message);
@@ -140,6 +149,14 @@ export function useGistFlashcards({
       });
       if (datasetFallback.length > 0) {
         setFlashcards(datasetFallback);
+        gistDebugLogger.success(
+          'init',
+          'Flashcards de fallback chargées (dataset local)',
+          {
+            flashcardsCount: datasetFallback.length,
+            source: 'local_dataset',
+          }
+        );
         console.log(
           '✅ Using Mandarin dataset flashcards:',
           datasetFallback.length
@@ -148,6 +165,14 @@ export function useGistFlashcards({
       }
 
       setFlashcards(mockFlashcards);
+      gistDebugLogger.success(
+        'init',
+        'Flashcards de fallback chargées (mock)',
+        {
+          flashcardsCount: mockFlashcards.length,
+          source: 'mock',
+        }
+      );
       console.log(
         '✅ Using mock flashcards for testing:',
         mockFlashcards.length
@@ -159,20 +184,46 @@ export function useGistFlashcards({
   const loadFlashcards = useCallback(async () => {
     const gistIdToLoad = currentGistId?.trim();
 
+    gistDebugLogger.log('init', 'useGistFlashcards: Début du chargement', {
+      gistId: gistIdToLoad ? `${gistIdToLoad.substring(0, 20)}...` : 'null',
+      gistOwner: currentGistOwner
+        ? `${currentGistOwner.substring(0, 20)}...`
+        : 'undefined',
+      hasRawUrl: !!rawUrl,
+      alreadyLoaded: hasLoadedRef.current === gistIdToLoad,
+      isLoading: isLoadingRef.current || isLoading,
+    });
+
     if (!gistIdToLoad) {
+      const errorMsg =
+        'Aucun Gist ID fourni. Veuillez configurer un Gist dans les paramètres.';
+      gistDebugLogger.error('validate_input', errorMsg, new Error(errorMsg), {
+        hook: 'useGistFlashcards',
+      });
       if (!hasLoadedFallbackRef.current) {
-        loadFallbackFlashcards('Aucun Gist ID fourni');
+        loadFallbackFlashcards(formatGistError('validate_input', errorMsg));
       }
       return;
     }
 
     // Prevent duplicate loading - check both state and ref
     if (isLoadingRef.current || isLoading) {
+      gistDebugLogger.warn(
+        'init',
+        'useGistFlashcards: Chargement déjà en cours, ignoré'
+      );
       return;
     }
 
     // If we've already loaded this Gist ID, don't reload
     if (hasLoadedRef.current === gistIdToLoad) {
+      gistDebugLogger.log(
+        'init',
+        'useGistFlashcards: Gist déjà chargé, ignoré',
+        {
+          gistId: gistIdToLoad.substring(0, 20),
+        }
+      );
       return;
     }
 
@@ -182,15 +233,44 @@ export function useGistFlashcards({
     hasLoadedFallbackRef.current = false;
 
     try {
+      gistDebugLogger.log(
+        'fetch_api',
+        'useGistFlashcards: Appel à readFlashcards',
+        {
+          gistId: gistIdToLoad.substring(0, 20),
+          gistOwner: currentGistOwner,
+          hasRawUrl: !!rawUrl,
+        }
+      );
+
       const result = await githubGistService.readFlashcards(
         gistIdToLoad,
         rawUrl
       );
 
       if (result.success && result.flashcards && result.flashcards.length > 0) {
+        gistDebugLogger.log(
+          'convert_format',
+          'useGistFlashcards: Conversion des flashcards',
+          {
+            count: result.flashcards.length,
+          }
+        );
+
         const appFlashcards = result.flashcards.map(
           convertGistFlashcardToAppFlashcard
         );
+
+        gistDebugLogger.success(
+          'complete',
+          'useGistFlashcards: Flashcards chargées avec succès',
+          {
+            originalCount: result.flashcards.length,
+            convertedCount: appFlashcards.length,
+            gistId: gistIdToLoad.substring(0, 20),
+          }
+        );
+
         setFlashcards(appFlashcards);
         setError(null);
         hasLoadedRef.current = gistIdToLoad;
@@ -199,32 +279,68 @@ export function useGistFlashcards({
       }
 
       const errorMessage =
-        result.error || 'Erreur lors du chargement des flashcards';
+        result.error ||
+        'Erreur lors du chargement des flashcards depuis le Gist';
+      gistDebugLogger.error(
+        'error',
+        'useGistFlashcards: Échec du chargement',
+        new Error(errorMessage),
+        {
+          hook: 'useGistFlashcards',
+          gistId: gistIdToLoad.substring(0, 20),
+          gistOwner: currentGistOwner,
+        }
+      );
+      const formattedError = formatGistError('error', errorMessage, {
+        gistId: gistIdToLoad.substring(0, 20),
+        owner: currentGistOwner,
+      });
       console.warn(
         '⚠️ Failed to load flashcards from Gist, using local dataset instead:',
-        errorMessage
+        formattedError
       );
       if (!hasLoadedFallbackRef.current) {
-        loadFallbackFlashcards(errorMessage);
+        loadFallbackFlashcards(formattedError);
       }
       hasLoadedRef.current = gistIdToLoad; // Mark as attempted to prevent retries
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : 'Erreur inconnue';
+        err instanceof Error
+          ? err.message
+          : 'Erreur inconnue lors du chargement';
+      gistDebugLogger.error(
+        'error',
+        'useGistFlashcards: Exception non gérée',
+        err,
+        {
+          hook: 'useGistFlashcards',
+          gistId: gistIdToLoad.substring(0, 20),
+          gistOwner: currentGistOwner,
+        }
+      );
+      const formattedError = formatGistError('error', errorMessage, {
+        gistId: gistIdToLoad.substring(0, 20),
+        owner: currentGistOwner,
+      });
       console.warn(
         '⚠️ Error loading flashcards from Gist, using local dataset instead:',
-        errorMessage
+        formattedError
       );
       if (!hasLoadedFallbackRef.current) {
-        loadFallbackFlashcards(errorMessage);
+        loadFallbackFlashcards(formattedError);
       }
       hasLoadedRef.current = gistIdToLoad; // Mark as attempted to prevent retries
     } finally {
       isLoadingRef.current = false;
       setIsLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentGistId, rawUrl, loadFallbackFlashcards]);
+  }, [
+    currentGistId,
+    currentGistOwner,
+    rawUrl,
+    loadFallbackFlashcards,
+    isLoading,
+  ]);
 
   const refreshFlashcards = useCallback(async () => {
     await loadFlashcards();

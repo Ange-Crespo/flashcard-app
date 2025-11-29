@@ -1,0 +1,269 @@
+.gist-debug-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 600px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 40px);
+  background: var(--surface, #1e293b);
+  color: var(--text-primary, #f8fafc);
+  border: 2px solid var(--border-color, #334155);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  z-index: 10000;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.gist-debug-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color, #334155);
+  background: var(--surface-hover, #334155);
+}
+
+.gist-debug-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gist-debug-title h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary, #f8fafc);
+}
+
+.gist-debug-badge {
+  background: var(--primary-yellow, #ffc107);
+  color: var(--bg-primary, #000000);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.gist-debug-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.gist-debug-button,
+.gist-debug-toggle {
+  background: transparent;
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  color: var(--text-primary, #f8fafc);
+}
+
+.gist-debug-button:hover,
+.gist-debug-toggle:hover {
+  background: var(--surface-hover, #334155);
+}
+
+.gist-debug-toggle--enabled {
+  background: #4caf50;
+  color: white;
+  border-color: #4caf50;
+}
+
+.gist-debug-stats {
+  display: flex;
+  gap: 4px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-color, #e0e0e0);
+  flex-wrap: wrap;
+}
+
+.gist-debug-filter {
+  background: transparent;
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.2s;
+  color: var(--text-primary, #f8fafc);
+}
+
+.gist-debug-filter:hover {
+  background: var(--surface-hover, #334155);
+}
+
+.gist-debug-filter--active {
+  background: var(--primary-yellow, #ffc107);
+  color: var(--bg-primary, #000000);
+  border-color: var(--primary-yellow, #ffc107);
+  font-weight: 600;
+}
+
+.gist-debug-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.gist-debug-empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.gist-debug-logs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gist-debug-log {
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 4px;
+  padding: 8px;
+  background: var(--surface, #1e293b);
+  color: var(--text-primary, #f8fafc);
+}
+
+.gist-debug-log--error {
+  border-color: #f44336;
+  background: #ffebee;
+}
+
+.gist-debug-log--warn {
+  border-color: #ff9800;
+  background: #fff3e0;
+}
+
+.gist-debug-log--success {
+  border-color: #4caf50;
+  background: #e8f5e9;
+}
+
+.gist-debug-log--info {
+  border-color: #2196f3;
+  background: #e3f2fd;
+}
+
+.gist-debug-log-header {
+  margin-bottom: 4px;
+}
+
+.gist-debug-log-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.gist-debug-icon {
+  flex-shrink: 0;
+}
+
+.gist-debug-icon--error {
+  color: #f44336;
+}
+
+.gist-debug-icon--warn {
+  color: #ff9800;
+}
+
+.gist-debug-icon--success {
+  color: #4caf50;
+}
+
+.gist-debug-icon--info {
+  color: #2196f3;
+}
+
+.gist-debug-log-step {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 10px;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.gist-debug-log-time {
+  color: var(--text-secondary, #94a3b8);
+  font-size: 10px;
+}
+
+.gist-debug-log-message {
+  margin: 4px 0;
+  word-break: break-word;
+  color: var(--text-primary, #f8fafc);
+}
+
+.gist-debug-log--error .gist-debug-log-message {
+  color: #f44336;
+}
+
+.gist-debug-log--success .gist-debug-log-message {
+  color: #4caf50;
+}
+
+.gist-debug-log--info .gist-debug-log-message {
+  color: var(--text-secondary, #94a3b8);
+}
+
+.gist-debug-log--warn .gist-debug-log-message {
+  color: #ff9800;
+}
+
+.gist-debug-log-error {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(244, 67, 54, 0.2);
+  border-left: 3px solid #f44336;
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--text-primary, #f8fafc);
+}
+
+.gist-debug-log-data {
+  margin-top: 8px;
+}
+
+.gist-debug-log-data summary {
+  cursor: pointer;
+  padding: 4px 8px;
+  background: var(--surface-hover, #334155);
+  color: var(--text-primary, #f8fafc);
+  border-radius: 4px;
+  font-size: 11px;
+  user-select: none;
+}
+
+.gist-debug-log-data summary:hover {
+  background: var(--border-color, #475569);
+}
+
+.gist-debug-log-data pre {
+  margin: 8px 0 0 0;
+  padding: 8px;
+  background: var(--surface-hover, #334155);
+  color: var(--text-primary, #f8fafc);
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .gist-debug-panel {
+    width: calc(100vw - 20px);
+    right: 10px;
+    bottom: 10px;
+    max-height: calc(100vh - 20px);
+  }
+}

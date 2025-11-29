@@ -4,7 +4,12 @@ import type {
   FlashcardMetadataValue,
 } from '../store';
 import { generateCardHashId } from '../utils/cardIdGenerator';
-import mandarinDataset from '../../data/language/chinese/mandarin.json';
+
+// Dynamically import all JSON files from data/cards folder
+const cardFiles = import.meta.glob<{ default: unknown[] }>(
+  '../../data/cards/**/*.json',
+  { eager: true }
+);
 
 type DeckEntry = Record<string, unknown>;
 
@@ -114,9 +119,10 @@ function createDeckBuilder<T extends DeckEntry>(
       return { card, useful };
     });
 
-    const sorted = config.sort
-      ? mapped.sort((a, b) => config.sort!(a.card, b.card))
-      : mapped;
+    let sorted = mapped;
+    if (config.sort) {
+      sorted = [...mapped].sort((a, b) => config.sort!(a.card, b.card));
+    }
 
     const filtered = onlyUseful ? sorted.filter(item => item.useful) : sorted;
 
@@ -143,11 +149,28 @@ function getNumber(entry: DeckEntry, key: string): number | undefined {
   return typeof value === 'number' ? value : undefined;
 }
 
+// Load all card files and create deck builders
+function loadAllCardDecks() {
+  const allCards: DeckEntry[] = [];
+
+  // Process all imported JSON files
+  for (const module of Object.values(cardFiles)) {
+    const data = module.default as DeckEntry[];
+    if (Array.isArray(data)) {
+      allCards.push(...data);
+    }
+  }
+
+  return allCards;
+}
+
+const allCardsData = loadAllCardDecks();
+
 const mandarinDeckBuilder = createDeckBuilder({
   deckId: 'mandarin-core',
   deckName: 'Mandarin Core Vocabulary',
   language: 'mandarin',
-  data: mandarinDataset as DeckEntry[],
+  data: allCardsData,
   front: {
     title: 'Mot',
     text: entry => getString(entry, 'word') ?? '',
@@ -196,7 +219,7 @@ const mandarinDeckBuilder = createDeckBuilder({
     ];
   },
   extras: entry => ({
-    source: 'data/language/chinese/mandarin.json',
+    source: 'data/cards',
     word_frequency: getNumber(entry, 'word_frequency'),
     useful_for_flashcard: entry['useful_for_flashcard'],
   }),

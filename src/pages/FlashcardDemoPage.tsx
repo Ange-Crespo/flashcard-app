@@ -8,6 +8,7 @@ import './FlashcardDemoPage.css';
 
 export function FlashcardDemoPage() {
   const [gistId, setGistId] = useState('');
+  const [gistOwner, setGistOwner] = useState<string | undefined>(undefined);
   const [showReader, setShowReader] = useState(false);
 
   const { flashcards, error } = useGistFlashcards({
@@ -16,10 +17,31 @@ export function FlashcardDemoPage() {
   });
 
   const handleUploadSuccess = (gistUrl: string) => {
-    // Extract Gist ID from URL
-    const id = gistUrl.split('/').pop();
-    if (id) {
-      setGistId(id);
+    // Extract Gist ID and owner from URL
+    // Format: https://gist.github.com/owner/id
+    try {
+      const url = new URL(gistUrl);
+      const segments = url.pathname.split('/').filter(Boolean);
+      if (segments.length >= 2) {
+        setGistOwner(segments[0]);
+        setGistId(segments[1]);
+      } else if (segments.length === 1) {
+        setGistId(segments[0]);
+        setGistOwner(undefined);
+      } else {
+        // Fallback: try to extract from the end of the URL
+        const id = gistUrl.split('/').pop();
+        if (id) {
+          setGistId(id);
+        }
+      }
+      setShowReader(true);
+    } catch {
+      // If URL parsing fails, try simple extraction
+      const id = gistUrl.split('/').pop();
+      if (id) {
+        setGistId(id);
+      }
       setShowReader(true);
     }
   };
@@ -53,6 +75,7 @@ export function FlashcardDemoPage() {
             <h2>2. Charger des Flashcards depuis Gist</h2>
             <GistFlashcardReader
               gistId={gistId}
+              gistOwner={gistOwner}
               onFlashcardsLoaded={handleFlashcardsLoaded}
               onError={handleError}
               autoLoad={false}

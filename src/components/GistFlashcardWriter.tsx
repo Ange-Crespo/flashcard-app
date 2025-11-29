@@ -8,12 +8,13 @@ import {
   X,
 } from 'react-feather';
 import { githubGistService } from '../lib/githubGist';
+import { gistDebugLogger, formatGistError } from '../lib/gistDebug';
 import type { GistFlashcard, GistFlashcardFace } from '../types/gist';
 import './GistFlashcardWriter.css';
 
 interface GistFlashcardWriterProps {
-  onSuccess?: (gistUrl: string) => void;
-  onError?: (error: string) => void;
+  readonly onSuccess?: (gistUrl: string) => void;
+  readonly onError?: (error: string) => void;
 }
 
 export function GistFlashcardWriter({
@@ -68,11 +69,23 @@ export function GistFlashcardWriter({
   };
 
   const handleUpload = async () => {
+    gistDebugLogger.log('init', "GistFlashcardWriter: Début de l'upload", {
+      flashcardsCount: flashcards.length,
+      hasToken: !!githubToken,
+      description: gistDescription,
+    });
+
     if (!githubToken.trim()) {
+      const errorMsg =
+        'Token GitHub manquant. Veuillez entrer un token GitHub valide avec les permissions "gist".';
+      gistDebugLogger.error('validate_token', errorMsg, new Error(errorMsg), {
+        component: 'GistFlashcardWriter',
+      });
       setUploadStatus({
         type: 'error',
-        message: 'Veuillez entrer un token GitHub',
+        message: formatGistError('validate_token', errorMsg),
       });
+      onError?.(formatGistError('validate_token', errorMsg));
       return;
     }
 
@@ -81,12 +94,28 @@ export function GistFlashcardWriter({
       card => hasFaceValue(card.front) && hasFaceValue(card.back)
     );
 
+    gistDebugLogger.log(
+      'validate_input',
+      'GistFlashcardWriter: Validation des flashcards',
+      {
+        totalCount: flashcards.length,
+        validCount: validFlashcards.length,
+        invalidCount: flashcards.length - validFlashcards.length,
+      }
+    );
+
     if (validFlashcards.length === 0) {
+      const errorMsg =
+        'Aucune flashcard valide. Veuillez créer au moins une flashcard avec un front (question) et un back (réponse) remplis.';
+      gistDebugLogger.error('validate_input', errorMsg, new Error(errorMsg), {
+        component: 'GistFlashcardWriter',
+        totalCount: flashcards.length,
+      });
       setUploadStatus({
         type: 'error',
-        message:
-          'Veuillez créer au moins une flashcard avec un front et un back',
+        message: formatGistError('validate_input', errorMsg),
       });
+      onError?.(formatGistError('validate_input', errorMsg));
       return;
     }
 
@@ -94,6 +123,15 @@ export function GistFlashcardWriter({
     setUploadStatus({ type: 'idle', message: '' });
 
     try {
+      gistDebugLogger.log(
+        'create_gist',
+        'GistFlashcardWriter: Appel à createFlashcardGist',
+        {
+          validFlashcardsCount: validFlashcards.length,
+          description: gistDescription,
+        }
+      );
+
       // Upload to Gist
       const result = await githubGistService.createFlashcardGist(
         validFlashcards,
@@ -102,27 +140,66 @@ export function GistFlashcardWriter({
       );
 
       if (result.success) {
+        gistDebugLogger.success(
+          'complete',
+          'GistFlashcardWriter: Upload réussi',
+          {
+            flashcardsCount: validFlashcards.length,
+            gistUrl: result.gistUrl,
+          }
+        );
         setUploadStatus({
           type: 'success',
-          message: `${validFlashcards.length} flashcards uploadés avec succès!`,
+          message: `${validFlashcards.length} flashcards uploadés avec succès! Gist créé: ${result.gistUrl}`,
           gistUrl: result.gistUrl,
         });
         onSuccess?.(result.gistUrl!);
       } else {
+        const errorMsg =
+          result.error || "Erreur lors de l'upload vers GitHub Gist";
+        gistDebugLogger.error(
+          'create_gist',
+          "GistFlashcardWriter: Échec de l'upload",
+          new Error(errorMsg),
+          {
+            component: 'GistFlashcardWriter',
+            flashcardsCount: validFlashcards.length,
+          }
+        );
         setUploadStatus({
           type: 'error',
-          message: result.error || "Erreur lors de l'upload",
+          message: formatGistError('create_gist', errorMsg, {
+            flashcardsCount: validFlashcards.length,
+          }),
         });
-        onError?.(result.error || "Erreur lors de l'upload");
+        onError?.(
+          formatGistError('create_gist', errorMsg, {
+            flashcardsCount: validFlashcards.length,
+          })
+        );
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Erreur inconnue';
+        error instanceof Error
+          ? error.message
+          : "Erreur inconnue lors de l'upload";
+      gistDebugLogger.error(
+        'error',
+        'GistFlashcardWriter: Exception non gérée',
+        error,
+        {
+          component: 'GistFlashcardWriter',
+          flashcardsCount: validFlashcards.length,
+        }
+      );
+      const formattedError = formatGistError('error', errorMessage, {
+        flashcardsCount: validFlashcards.length,
+      });
       setUploadStatus({
         type: 'error',
-        message: errorMessage,
+        message: formattedError,
       });
-      onError?.(errorMessage);
+      onError?.(formattedError);
     } finally {
       setIsUploading(false);
     }

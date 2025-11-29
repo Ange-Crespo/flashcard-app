@@ -1,6 +1,6 @@
 import { NavLink, Route, Routes } from 'react-router-dom';
 import { Search, MessageCircle, GitHub, Plus, Settings } from 'react-feather';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import DiscoverPage from './pages/DiscoverPage';
 import ProgressPage from './pages/ProgressPage';
 import { FlashcardDemoPage } from './pages/FlashcardDemoPage';
@@ -8,6 +8,7 @@ import FlashcardDeckCreatorPage from './pages/FlashcardDeckCreatorPage';
 import SettingsPage from './pages/SettingsPage';
 import { ToastContainer } from './components/Toast';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { GistDebugPanel } from './components/GistDebugPanel';
 import { useToast } from './hooks/useToast';
 import { useAppStore } from './store';
 import { useGistFlashcards } from './hooks/useGistFlashcards';
@@ -29,6 +30,7 @@ function App() {
   const { toasts, removeToast } = useToast();
   const { flashcards, setFlashcards, loadProgress, selectedGist } =
     useAppStore();
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   // Apply theme on mount
   useEffect(() => {
@@ -71,6 +73,17 @@ function App() {
   useEffect(() => {
     loadProgress();
   }, [loadProgress]);
+
+  // Listen for debug panel toggle events
+  useEffect(() => {
+    const handleToggle = () => {
+      setShowDebugPanel(prev => !prev);
+    };
+    globalThis.addEventListener('toggle-gist-debug-panel', handleToggle);
+    return () => {
+      globalThis.removeEventListener('toggle-gist-debug-panel', handleToggle);
+    };
+  }, []);
 
   return (
     <ErrorBoundary>
@@ -147,6 +160,9 @@ function App() {
           </NavLink>
         </nav>
         <ToastContainer toasts={toasts} onClose={removeToast} />
+        {showDebugPanel && (
+          <GistDebugPanel onClose={() => setShowDebugPanel(false)} />
+        )}
       </div>
     </ErrorBoundary>
   );

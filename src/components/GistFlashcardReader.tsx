@@ -7,6 +7,7 @@ import {
   RefreshCw,
 } from 'react-feather';
 import { githubGistService } from '../lib/githubGist';
+import { gistDebugLogger, formatGistError } from '../lib/gistDebug';
 import type { Flashcard, FlashcardFace, FlashcardExample } from '../store';
 import type {
   GistFlashcard,
@@ -85,15 +86,17 @@ function convertGistFlashcardToAppFlashcard(
 }
 
 interface GistFlashcardReaderProps {
-  gistId: string;
-  rawUrl?: string;
-  onFlashcardsLoaded?: (flashcards: Flashcard[]) => void;
-  onError?: (error: string) => void;
-  autoLoad?: boolean;
+  readonly gistId: string;
+  readonly gistOwner?: string;
+  readonly rawUrl?: string;
+  readonly onFlashcardsLoaded?: (flashcards: Flashcard[]) => void;
+  readonly onError?: (error: string) => void;
+  readonly autoLoad?: boolean;
 }
 
 export function GistFlashcardReader({
   gistId,
+  gistOwner,
   rawUrl,
   onFlashcardsLoaded,
   onError,
@@ -107,11 +110,23 @@ export function GistFlashcardReader({
   }>({ type: 'idle', message: '' });
 
   const loadFlashcards = useCallback(async () => {
+    gistDebugLogger.log('init', 'GistFlashcardReader: Début du chargement', {
+      gistId: gistId ? `${gistId.substring(0, 20)}...` : 'null',
+      gistOwner: gistOwner ? `${gistOwner.substring(0, 20)}...` : 'undefined',
+      hasRawUrl: !!rawUrl,
+    });
+
     if (!gistId.trim()) {
+      const errorMsg =
+        'Aucun Gist ID fourni. Veuillez entrer un identifiant de Gist valide.';
+      gistDebugLogger.error('validate_input', errorMsg, new Error(errorMsg), {
+        component: 'GistFlashcardReader',
+      });
       setLoadStatus({
         type: 'error',
-        message: 'Aucun Gist ID fourni',
+        message: formatGistError('validate_input', errorMsg),
       });
+      onError?.(formatGistError('validate_input', errorMsg));
       return;
     }
 
@@ -119,12 +134,40 @@ export function GistFlashcardReader({
     setLoadStatus({ type: 'idle', message: '' });
 
     try {
+      gistDebugLogger.log(
+        'fetch_api',
+        'GistFlashcardReader: Appel à readFlashcards',
+        {
+          gistId: gistId.substring(0, 20),
+          gistOwner,
+          hasRawUrl: !!rawUrl,
+        }
+      );
+
       const result = await githubGistService.readFlashcards(gistId, rawUrl);
 
       if (result.success && result.flashcards) {
+        gistDebugLogger.log(
+          'convert_format',
+          'GistFlashcardReader: Conversion des flashcards',
+          {
+            count: result.flashcards.length,
+          }
+        );
+
         const appFlashcards = result.flashcards.map(
           convertGistFlashcardToAppFlashcard
         );
+
+        gistDebugLogger.success(
+          'complete',
+          'GistFlashcardReader: Flashcards chargées avec succès',
+          {
+            originalCount: result.flashcards.length,
+            convertedCount: appFlashcards.length,
+          }
+        );
+
         setLoadStatus({
           type: 'success',
           message: `${appFlashcards.length} flashcards chargés avec succès!`,
@@ -133,24 +176,61 @@ export function GistFlashcardReader({
 
         onFlashcardsLoaded?.(appFlashcards);
       } else {
+        const errorMsg =
+          result.error ||
+          'Erreur lors du chargement des flashcards depuis le Gist';
+        gistDebugLogger.error(
+          'error',
+          'GistFlashcardReader: Échec du chargement',
+          new Error(errorMsg),
+          {
+            component: 'GistFlashcardReader',
+            gistId: gistId.substring(0, 20),
+            gistOwner,
+          }
+        );
         setLoadStatus({
           type: 'error',
-          message: result.error || 'Erreur lors du chargement',
+          message: formatGistError('error', errorMsg, {
+            gistId: gistId.substring(0, 20),
+            owner: gistOwner,
+          }),
         });
-        onError?.(result.error || 'Erreur lors du chargement');
+        onError?.(
+          formatGistError('error', errorMsg, {
+            gistId: gistId.substring(0, 20),
+            owner: gistOwner,
+          })
+        );
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Erreur inconnue';
+        error instanceof Error
+          ? error.message
+          : 'Erreur inconnue lors du chargement';
+      gistDebugLogger.error(
+        'error',
+        'GistFlashcardReader: Exception non gérée',
+        error,
+        {
+          component: 'GistFlashcardReader',
+          gistId: gistId.substring(0, 20),
+          gistOwner,
+        }
+      );
+      const formattedError = formatGistError('error', errorMessage, {
+        gistId: gistId.substring(0, 20),
+        owner: gistOwner,
+      });
       setLoadStatus({
         type: 'error',
-        message: errorMessage,
+        message: formattedError,
       });
-      onError?.(errorMessage);
+      onError?.(formattedError);
     } finally {
       setIsLoading(false);
     }
-  }, [gistId, rawUrl, onFlashcardsLoaded, onError]);
+  }, [gistId, gistOwner, rawUrl, onFlashcardsLoaded, onError]);
 
   // Auto-load on mount if enabled
   useEffect(() => {
@@ -172,7 +252,11 @@ export function GistFlashcardReader({
             <strong>Gist ID:</strong> {gistId}
           </span>
           <a
-            href={`https://gist.github.com/${gistId}`}
+            href={
+              gistOwner
+                ? `https://gist.github.com/${gistOwner}/${gistId}`
+                : `https://gist.github.com/${gistId}`
+            }
             target="_blank"
             rel="noopener noreferrer"
             className="gist-view-link"
