@@ -1,0 +1,364 @@
+
+> flashcards-app@0.0.0 test:coverage
+> vitest run --coverage
+
+
+ RUN  v3.2.4 e:/Onedrive/Ange/Ange/Projects/Entreprise Freelance/Projets/flashcards/flashcard
+      Coverage enabled with v8
+
+ ✓ src/components/__tests__/OnboardingFlow.test.tsx (8 tests) 1225ms
+   ✓ OnboardingFlow > calls onComplete when Get Started is clicked on last step  403ms
+   ✓ OnboardingFlow > calls onComplete when Skip is clicked  388ms
+stdout | src/__tests__/App.test.tsx > App > renders the main app structure
+[2025-12-14T11:13:12.279Z] [INFO] ✅ Loaded local dataset flashcards {"count":500}
+
+stdout | src/__tests__/App.test.tsx > App > renders navigation links
+[2025-12-14T11:13:12.531Z] [INFO] ✅ Loaded local dataset flashcards {"count":500}
+
+stdout | src/__tests__/App.test.tsx > App > renders Discover page by default
+[2025-12-14T11:13:12.745Z] [INFO] ✅ Loaded local dataset flashcards {"count":500}
+
+stdout | src/__tests__/App.test.tsx > App > renders ToastContainer
+[2025-12-14T11:13:12.955Z] [INFO] ✅ Loaded local dataset flashcards {"count":500}
+
+stdout | src/__tests__/App.test.tsx > App > has proper navigation structure
+[2025-12-14T11:13:13.161Z] [INFO] ✅ Loaded local dataset flashcards {"count":500}
+
+stdout | src/__tests__/App.test.tsx > App > has proper main content area
+[2025-12-14T11:13:13.384Z] [INFO] ✅ Loaded local dataset flashcards {"count":500}
+
+stdout | src/__tests__/App.test.tsx > App > has proper header area
+[2025-12-14T11:13:13.597Z] [INFO] ✅ Loaded local dataset flashcards {"count":500}
+
+ ✓ src/__tests__/App.test.tsx (7 tests) 1571ms
+ ✓ src/components/__tests__/Toast.test.tsx (12 tests) 378ms
+   ✓ ToastContainer > calls onClose for each toast  335ms
+ ✓ src/components/__tests__/GistFlashcardWriter.test.tsx (11 tests) 554ms
+ ✓ src/components/__tests__/DeckMappingModal.test.tsx (5 tests) 492ms
+stderr | src/pages/__tests__/SettingsPage.test.tsx > SettingsPage > loads deck catalog from a gist URL
+Not implemented: navigation to another Document
+
+ ✓ src/pages/__tests__/SettingsPage.test.tsx (6 tests) 424ms
+ ✓ src/pages/__tests__/DiscoverPage.accessibility.test.tsx (2 tests) 274ms
+ ✓ src/components/__tests__/GistFlashcardReader.test.tsx (12 tests) 108ms
+ ✓ src/components/__tests__/GistDebugPanel.test.tsx (12 tests) 94ms
+ ✓ src/pages/__tests__/DiscoverPage.test.tsx (9 tests) 30ms
+ ✓ src/components/__tests__/EnhancedEmptyState.test.tsx (7 tests) 36ms
+stdout | src/lib/__tests__/gistDebug.test.ts > GistDebugLogger > logging > should limit log entries to maxLogs
+[2025-12-14T11:13:17.787Z] [INFO] [Gist Debug] [INIT] Message 0
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 1
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 2
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 3
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 4
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 5
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 6
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 7
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 8
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 9
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 10
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 11
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 12
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 13
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 14
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 15
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 16
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 17
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 18
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 19
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 20
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 21
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 22
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 23
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 24
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 25
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 26
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 27
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 28
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 29
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 30
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 31
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 32
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 33
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 34
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 35
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 36
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 37
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 38
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 39
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 40
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 41
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 42
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 43
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 44
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 45
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 46
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 47
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 48
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 49
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 50
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 51
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 52
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 53
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 54
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 55
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 56
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 57
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 58
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 59
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 60
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 61
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 62
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 63
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 64
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 65
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 66
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 67
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 68
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 69
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 70
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 71
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 72
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 73
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 74
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 75
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 76
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 77
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 78
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 79
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 80
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 81
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 82
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 83
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 84
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 85
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 86
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 87
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 88
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 89
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 90
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 91
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 92
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 93
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 94
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 95
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 96
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 97
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 98
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 99
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 100
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 101
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 102
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 103
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 104
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 105
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 106
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 107
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 108
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 109
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 110
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 111
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 112
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 113
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 114
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 115
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 116
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 117
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 118
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 119
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 120
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 121
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 122
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 123
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 124
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 125
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 126
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 127
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 128
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 129
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 130
+[2025-12-14T11:13:17.788Z] [INFO] [Gist Debug] [INIT] Message 131
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 132
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 133
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 134
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 135
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 136
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 137
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 138
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 139
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 140
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 141
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 142
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 143
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 144
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 145
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 146
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 147
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 148
+[2025-12-14T11:13:17.789Z] [INFO] [Gist Debug] [INIT] Message 149
+
+ ✓ src/lib/__tests__/gistDebug.test.ts (24 tests) 9ms
+ ✓ src/components/__tests__/LoadingSpinner.test.tsx (11 tests) 20ms
+ ✓ src/lib/__tests__/importExport.test.ts (7 tests) 6ms
+ ✓ src/__tests__/store.test.ts (7 tests) 9ms
+stdout | src/lib/__tests__/gistCatalog.test.ts > fetchGistDeckCatalog > should parse catalog and extract rawUrl from gistUrlRaw
+[2025-12-14T11:13:18.037Z] [DEBUG] Extracted Gist info from rawUrl {"owner":"Ange-Crespo","id":"764525884bff631696fc0a5025ce93d6","rawUrlPrefix":"https://gist.githubusercontent.com/Ange-Crespo/764525884bff631696fc0a5025ce93d6/"}
+[2025-12-14T11:13:18.037Z] [DEBUG] Processed deck {"name":"Mandarin Full Deck","id":"764525884bff631696fc0a5025ce93d6","owner":"Ange-Crespo","hasRawUrl":true,"rawUrl":"https://gist.githubusercontent.com/Ange-Crespo/764525884bff631696fc0a5025ce93d6/"}
+[2025-12-14T11:13:18.037Z] [DEBUG] Extracted Gist info from rawUrl {"owner":"Ange-Crespo","id":"ed98b7cff7919d8c74d257dc52c1dcf7","rawUrlPrefix":"https://gist.githubusercontent.com/Ange-Crespo/ed98b7cff7919d8c74d257dc52c1dcf7/"}
+[2025-12-14T11:13:18.037Z] [DEBUG] Processed deck {"name":"SQuaD","id":"ed98b7cff7919d8c74d257dc52c1dcf7","owner":"Ange-Crespo","hasRawUrl":true,"rawUrl":"https://gist.githubusercontent.com/Ange-Crespo/ed98b7cff7919d8c74d257dc52c1dcf7/"}
+
+stdout | src/lib/__tests__/gistCatalog.test.ts > fetchGistDeckCatalog > should extract Gist ID from rawUrl when provided
+[2025-12-14T11:13:18.038Z] [DEBUG] Extracted Gist info from rawUrl {"owner":"Ange-Crespo","id":"ed98b7cff7919d8c74d257dc52c1dcf7","rawUrlPrefix":"https://gist.githubusercontent.com/Ange-Crespo/ed98b7cff7919d8c74d257dc52c1dcf7/"}
+[2025-12-14T11:13:18.038Z] [DEBUG] Processed deck {"name":"Test Deck","id":"ed98b7cff7919d8c74d257dc52c1dcf7","owner":"Ange-Crespo","hasRawUrl":true,"rawUrl":"https://gist.githubusercontent.com/Ange-Crespo/ed98b7cff7919d8c74d257dc52c1dcf7/"}
+
+stdout | src/lib/__tests__/gistCatalog.test.ts > fetchGistDeckCatalog > should handle rawUrl with commit hash in path
+[2025-12-14T11:13:18.039Z] [DEBUG] Extracted Gist info from rawUrl {"owner":"Ange-Crespo","id":"abc123def456","rawUrlPrefix":"https://gist.githubusercontent.com/Ange-Crespo/abc123def456/raw/77d99363c6edc365"}
+[2025-12-14T11:13:18.039Z] [DEBUG] Processed deck {"name":"Test Deck","id":"abc123def456","owner":"Ange-Crespo","hasRawUrl":true,"rawUrl":"https://gist.githubusercontent.com/Ange-Crespo/abc123def456/raw/77d99363c6edc365"}
+
+stdout | src/lib/__tests__/gistCatalog.test.ts > fetchGistDeckCatalog > should prioritize rawUrl over gistUrlRaw
+[2025-12-14T11:13:18.040Z] [DEBUG] Extracted Gist info from rawUrl {"owner":"Ange-Crespo","id":"ed98b7cff7919d8c74d257dc52c1dcf7","rawUrlPrefix":"https://gist.githubusercontent.com/Ange-Crespo/ed98b7cff7919d8c74d257dc52c1dcf7/"}
+[2025-12-14T11:13:18.040Z] [DEBUG] Processed deck {"name":"Test Deck","id":"ed98b7cff7919d8c74d257dc52c1dcf7","owner":"Ange-Crespo","hasRawUrl":true,"rawUrl":"https://gist.githubusercontent.com/Ange-Crespo/ed98b7cff7919d8c74d257dc52c1dcf7/"}
+
+stdout | src/lib/__tests__/gistCatalog.test.ts > fetchGistDeckCatalog > should use gistUrlRaw when rawUrl is not provided
+[2025-12-14T11:13:18.040Z] [DEBUG] Processed deck {"name":"Test Deck","id":"test-id","owner":"Ange-Crespo","hasRawUrl":true,"rawUrl":"https://gist.githubusercontent.com/Ange-Crespo/test-id/raw/file.json"}
+
+stderr | src/lib/__tests__/gistCatalog.test.ts > fetchGistDeckCatalog > should use gistUrlRaw when rawUrl is not provided
+[2025-12-14T11:13:18.040Z] [WARN] Could not extract Gist ID from rawUrl {"rawUrlPrefix":"https://gist.githubusercontent.com/Ange-Crespo/test-id/raw/file.json"}
+
+stdout | src/lib/__tests__/gistCatalog.test.ts > fetchGistDeckCatalog > should handle gistUrl that is a raw URL
+[2025-12-14T11:13:18.041Z] [DEBUG] Extracted Gist info from rawUrl {"owner":"Ange-Crespo","id":"abc123","rawUrlPrefix":"https://gist.githubusercontent.com/Ange-Crespo/abc123/raw/file.json"}
+[2025-12-14T11:13:18.041Z] [DEBUG] Processed deck {"name":"Test Deck","id":"abc123","owner":"Ange-Crespo","hasRawUrl":true,"rawUrl":"https://gist.githubusercontent.com/Ange-Crespo/abc123/raw/file.json"}
+
+ ✓ src/lib/__tests__/gistCatalog.test.ts (6 tests) 6ms
+ ✓ src/utils/__tests__/flashcardMapping.test.ts (3 tests) 2ms
+ ✓ src/lib/__tests__/storageMigration.test.ts (3 tests) 2ms
+ ✓ src/lib/__tests__/fsrs.test.ts (2 tests) 2ms
+stdout | src/lib/__tests__/githubGist.test.ts > GitHubGistService > setGistId > should set the gist ID
+[2025-12-14T11:13:18.256Z] [INFO] [Gist Debug] [INIT] Configuration du Gist ID {"gistId":"null","owner":"undefined"}
+[2025-12-14T11:13:18.256Z] [INFO] [Gist Debug] [PARSE_IDENTIFIER] Début de l'analyse de l'identifiant {"identifier":"null"}
+
+stderr | src/lib/__tests__/githubGist.test.ts > GitHubGistService > setGistId > should set the gist ID
+[2025-12-14T11:13:18.256Z] [WARN] [Gist Debug] [PARSE_IDENTIFIER] Identifiant vide ou null
+[2025-12-14T11:13:18.256Z] [WARN] [Gist Debug] [INIT] Gist ID réinitialisé (ID vide)
+
+stdout | src/lib/__tests__/githubGist.test.ts > GitHubGistService > setGistId > should set the gist ID
+[2025-12-14T11:13:18.256Z] [INFO] [Gist Debug] [INIT] Configuration du Gist ID {"gistId":"test-gist-id...","owner":"undefined"}
+[2025-12-14T11:13:18.257Z] [INFO] [Gist Debug] [PARSE_IDENTIFIER] Début de l'analyse de l'identifiant {"identifier":"test-gist-id..."}
+[2025-12-14T11:13:18.257Z] [INFO] [Gist Debug] [PARSE_IDENTIFIER] Identifiant traité comme ID simple {"id":"test-gist-id"}
+[2025-12-14T11:13:18.257Z] [INFO] ✅ [Gist Debug] [INIT] Gist ID configuré avec succès {"id":"test-gist-id","owner":null}
+
+stderr | src/lib/__tests__/githubGist.test.ts > GitHubGistService > setGistId > should set the gist ID
+[2025-12-14T11:13:18.257Z] [WARN] [Gist Debug] [PARSE_IDENTIFIER] Pas une URL valide, tentative de parsing manuel {"error":"Invalid URL: test-gist-id"}
+
+ ✓ src/lib/__tests__/githubGist.test.ts (1 test) 2ms
+
+ Test Files  20 passed (20)
+      Tests  155 passed (155)
+   Start at  12:13:04
+   Duration  14.50s (transform 3.11s, setup 320ms, collect 6.87s, tests 5.24s, environment 627ms, prepare 94ms)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   28.87 |    62.66 |   58.12 |   28.87 |                   
+ flashcard         |       0 |        0 |       0 |       0 |                   
+  ...thub-pages.js |       0 |        0 |       0 |       0 | 1-115             
+  ...ges-manual.js |       0 |        0 |       0 |       0 | 1-99              
+  test-build.js    |       0 |        0 |       0 |       0 | 1-26              
+ flashcard/public  |       0 |        0 |       0 |       0 |                   
+  ...ack-loader.js |       0 |        0 |       0 |       0 | 1-57              
+  redirect.js      |       0 |        0 |       0 |       0 | 1-36              
+ flashcard/scripts |       0 |        0 |       0 |       0 |                   
+  ...flashcards.js |       0 |        0 |       0 |       0 | 1-93              
+  ...sset-paths.js |       0 |        0 |       0 |       0 | 1-90              
+  ...flashcards.js |       0 |        0 |       0 |       0 | 1-56              
+  ...deployment.js |       0 |        0 |       0 |       0 | 1-119             
+ flashcard/src     |   45.62 |    77.96 |   73.33 |   45.62 |                   
+  App.tsx          |   92.22 |       75 |     100 |   92.22 | ...19,123,159-164 
+  App.tsx          |       0 |        0 |       0 |       0 | 1-180             
+  main.tsx         |       0 |        0 |       0 |       0 | 1-16              
+  store.ts         |   92.94 |    84.09 |    90.9 |   92.94 | ...96,121,213-217 
+  store.ts         |       0 |        0 |       0 |       0 | 1-326             
+ ...src/components |   37.04 |       66 |   62.85 |   37.04 |                   
+  ...pingModal.tsx |   92.41 |    58.82 |   70.58 |   92.41 | ...54-556,664-677 
+  ...pingModal.tsx |       0 |        0 |       0 |       0 | 1-699             
+  ...mptyState.tsx |     100 |       80 |     100 |     100 | 2                 
+  ...mptyState.tsx |       0 |        0 |       0 |       0 | 1-74              
+  ...rBoundary.tsx |   36.55 |       75 |      50 |   36.55 | ...0,63-64,67-145 
+  ...rBoundary.tsx |       0 |        0 |       0 |       0 | 1-145             
+  ...hcardCard.tsx |    8.98 |      100 |       0 |    8.98 | 32-345            
+  ...hcardCard.tsx |       0 |        0 |       0 |       0 | 1-345             
+  ...hcardDeck.tsx |   90.68 |    55.17 |      50 |   90.68 | ...68,175,187-198 
+  ...hcardDeck.tsx |       0 |        0 |       0 |       0 | 1-247             
+  ...ckCreator.tsx |       0 |        0 |       0 |       0 | 1-419             
+  ...dSkeleton.tsx |   97.05 |       80 |     100 |   97.05 | 4                 
+  ...dSkeleton.tsx |       0 |        0 |       0 |       0 | 1-34              
+  ...ebugPanel.tsx |   96.87 |    91.89 |     100 |   96.87 | 63-68,101-102     
+  ...ebugPanel.tsx |       0 |        0 |       0 |       0 | 1-256             
+  ...ardReader.tsx |   82.37 |    55.55 |     100 |   82.37 | ...32,256-262,283 
+  ...ardReader.tsx |       0 |        0 |       0 |       0 | 1-329             
+  ...ardWriter.tsx |   89.76 |    77.77 |   72.72 |   89.76 | ...43-247,249-252 
+  ...ardWriter.tsx |       0 |        0 |       0 |       0 | 1-430             
+  ...ngSpinner.tsx |     100 |    66.66 |     100 |     100 | 4,6,12            
+  ...ngSpinner.tsx |       0 |        0 |       0 |       0 | 1-72              
+  ...rdingFlow.tsx |     100 |    93.75 |     100 |     100 | 2                 
+  ...rdingFlow.tsx |       0 |        0 |       0 |       0 | 1-150             
+  Toast.tsx        |     100 |    85.71 |     100 |     100 | 2-3               
+  Toast.tsx        |       0 |        0 |       0 |       0 | 1-106             
+ ...card/src/hooks |    5.89 |       50 |    7.14 |    5.89 |                   
+  ...lurDataURL.ts |       0 |        0 |       0 |       0 | 1-29              
+  ...Flashcards.ts |       0 |        0 |       0 |       0 | 1-456             
+  ...Navigation.ts |    18.6 |      100 |       0 |    18.6 | ...6,19-73,75-121 
+  ...Navigation.ts |       0 |        0 |       0 |       0 | 1-129             
+  useToast.ts      |      70 |       80 |   14.28 |      70 | ...26,32-33,35-36 
+  useToast.ts      |       0 |        0 |       0 |       0 | 1-50              
+  useUndo.ts       |       0 |        0 |       0 |       0 | 1-158             
+ flashcard/src/lib |   23.66 |    61.07 |      65 |   23.66 |                   
+  constants.ts     |     100 |    71.42 |     100 |     100 | 5,7               
+  constants.ts     |       0 |        0 |       0 |       0 | 1-8               
+  cookies.ts       |   78.82 |    71.83 |   76.47 |   78.82 | ...63-273,277-298 
+  cookies.ts       |       0 |        0 |       0 |       0 | 1-340             
+  ...eldMapping.ts |   94.64 |    68.75 |     100 |   94.64 | 13-14,38          
+  ...eldMapping.ts |       0 |        0 |       0 |       0 | 1-56              
+  exportPayload.ts |     100 |       75 |     100 |     100 | 2                 
+  exportPayload.ts |       0 |        0 |       0 |       0 | 1-14              
+  fsrs.ts          |   90.41 |     64.7 |     100 |   90.41 | ...50,67,71,78-80 
+  fsrs.ts          |       0 |        0 |       0 |       0 | 1-167             
+  ...dConverter.ts |   35.07 |      100 |       0 |   35.07 | ...18-320,322-428 
+  ...dConverter.ts |       0 |        0 |       0 |       0 | 1-630             
+  gistCatalog.ts   |    69.8 |       40 |      60 |    69.8 | ...90-198,200-207 
+  gistCatalog.ts   |       0 |        0 |       0 |       0 | 1-255             
+  gistDebug.ts     |   99.21 |     80.7 |     100 |   99.21 | 173,186           
+  gistDebug.ts     |       0 |        0 |       0 |       0 | 1-256             
+  gistDecks.ts     |     100 |       75 |     100 |     100 | 4                 
+  gistDecks.ts     |       0 |        0 |       0 |       0 | 1-38              
+  githubGist.ts    |    7.37 |    75.86 |      50 |    7.37 | ...0-526,535-1708 
+  githubGist.ts    |       0 |        0 |       0 |       0 | 1-1708            
+  importPayload.ts |   74.03 |    53.12 |      75 |   74.03 | ...39-147,149-163 
+  importPayload.ts |       0 |        0 |       0 |       0 | 1-208             
+  localDecks.ts    |   93.96 |    68.85 |   75.86 |   93.96 | ...36-338,341-348 
+  localDecks.ts    |       0 |        0 |       0 |       0 | 1-348             
+  logger.ts        |     100 |    89.47 |     100 |     100 | 6,27              
+  logger.ts        |       0 |        0 |       0 |       0 | 1-83              
+  ...Flashcards.ts |       0 |        0 |       0 |       0 | 1-83              
+  themes.ts        |   92.94 |       50 |      60 |   92.94 | ...99-102,111-114 
+  themes.ts        |       0 |        0 |       0 |       0 | 1-170             
+  validation.ts    |    52.1 |    20.51 |   44.44 |    52.1 | ...93-219,221-247 
+  validation.ts    |       0 |        0 |       0 |       0 | 1-261             
+ ...card/src/pages |   38.37 |    70.31 |   43.75 |   38.37 |                   
+  DiscoverPage.tsx |   98.87 |    90.62 |      50 |   98.87 | 85,144            
+  DiscoverPage.tsx |       0 |        0 |       0 |       0 | 1-177             
+  ...eatorPage.tsx |       0 |        0 |       0 |       0 | 1-16              
+  ...dDemoPage.tsx |       0 |        0 |       0 |       0 | 1-113             
+  ProgressPage.tsx |       0 |        0 |       0 |       0 | 1-127             
+  SettingsPage.tsx |   88.68 |    59.25 |   66.66 |   88.68 | ...37,327,411-423 
+  SettingsPage.tsx |       0 |        0 |       0 |       0 | 1-495             
+ ...card/src/types |       0 |        0 |       0 |       0 |                   
+  fieldMapping.ts  |       0 |        0 |       0 |       0 | 1-26              
+  gist.ts          |       0 |        0 |       0 |       0 | 1-66              
+ ...card/src/utils |    39.3 |    55.46 |   63.63 |    39.3 |                   
+  ...dGenerator.ts |   88.46 |    73.91 |     100 |   88.46 | 44-46,55-63       
+  ...dGenerator.ts |       0 |        0 |       0 |       0 | 1-104             
+  ...ardMapping.ts |   76.01 |    52.12 |   71.42 |   76.01 | ...50,294-299,304 
+  ...ardMapping.ts |       0 |        0 |       0 |       0 | 1-396             
+-------------------|---------|----------|---------|---------|-------------------

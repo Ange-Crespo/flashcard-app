@@ -43,7 +43,7 @@ export function FlashcardDeck() {
   const [showFrontFirst, setShowFrontFirst] = useState(() => {
     try {
       const saved = localStorage.getItem('flashcard_showFrontFirst');
-      return saved !== null ? saved === 'true' : true;
+      return saved === null ? true : saved === 'true';
     } catch {
       return true;
     }
@@ -219,13 +219,12 @@ export function FlashcardDeck() {
 /**
  * Action bar component with buttons for marking flashcards as known/unknown
  */
-function ActionBar({
-  onDontKnow,
-  onKnow,
-}: {
-  onDontKnow: () => void;
-  onKnow: () => void;
-}) {
+interface ActionBarProps {
+  readonly onDontKnow: () => void;
+  readonly onKnow: () => void;
+}
+
+function ActionBar({ onDontKnow, onKnow }: ActionBarProps) {
   return (
     <div className="flashcard-action-bar">
       <button

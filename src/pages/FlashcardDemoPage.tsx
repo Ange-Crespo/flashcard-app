@@ -7,7 +7,7 @@ import type { Flashcard } from '../store';
 import { logger } from '../lib/logger';
 import './FlashcardDemoPage.css';
 
-export function FlashcardDemoPage() {
+export default function FlashcardDemoPage() {
   const [gistId, setGistId] = useState('');
   const [gistOwner, setGistOwner] = useState<string | undefined>(undefined);
   const [showReader, setShowReader] = useState(false);

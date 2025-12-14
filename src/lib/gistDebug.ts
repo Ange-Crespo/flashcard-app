@@ -40,7 +40,7 @@ class GistDebugLogger {
   constructor() {
     // Enable debug mode if localStorage flag is set or in development
     this.enabled =
-      typeof globalThis.window !== 'undefined' &&
+      globalThis.window !== undefined &&
       (globalThis.window.localStorage.getItem('gist_debug_enabled') ===
         'true' ||
         import.meta.env.DEV);
@@ -48,14 +48,14 @@ class GistDebugLogger {
 
   enable() {
     this.enabled = true;
-    if (typeof globalThis.window !== 'undefined') {
+    if (globalThis.window !== undefined) {
       globalThis.window.localStorage.setItem('gist_debug_enabled', 'true');
     }
   }
 
   disable() {
     this.enabled = false;
-    if (typeof globalThis.window !== 'undefined') {
+    if (globalThis.window !== undefined) {
       globalThis.window.localStorage.removeItem('gist_debug_enabled');
     }
   }
@@ -200,21 +200,37 @@ export function formatGistError(
 
   if (context) {
     const contextParts: string[] = [];
-    if (context.gistId) {
-      contextParts.push(`Gist ID: ${String(context.gistId)}`);
+    const safeString = (value: unknown): string => {
+      if (value === null || value === undefined) return '';
+      if (
+        typeof value === 'string' ||
+        typeof value === 'number' ||
+        typeof value === 'boolean'
+      ) {
+        return String(value);
+      }
+      try {
+        return JSON.stringify(value);
+      } catch {
+        return '[Unable to stringify]';
+      }
+    };
+
+    if (context.gistId !== undefined && context.gistId !== null) {
+      contextParts.push(`Gist ID: ${safeString(context.gistId)}`);
     }
-    if (context.owner) {
-      contextParts.push(`Propriétaire: ${String(context.owner)}`);
+    if (context.owner !== undefined && context.owner !== null) {
+      contextParts.push(`Propriétaire: ${safeString(context.owner)}`);
     }
-    if (context.statusCode) {
-      contextParts.push(`Code HTTP: ${String(context.statusCode)}`);
+    if (context.statusCode !== undefined && context.statusCode !== null) {
+      contextParts.push(`Code HTTP: ${safeString(context.statusCode)}`);
     }
-    if (context.fileName) {
-      contextParts.push(`Fichier: ${String(context.fileName)}`);
+    if (context.fileName !== undefined && context.fileName !== null) {
+      contextParts.push(`Fichier: ${safeString(context.fileName)}`);
     }
     if (context.flashcardsCount !== undefined) {
       contextParts.push(
-        `Flashcards trouvées: ${String(context.flashcardsCount)}`
+        `Flashcards trouvées: ${safeString(context.flashcardsCount)}`
       );
     }
 

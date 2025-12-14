@@ -112,6 +112,7 @@ The app is a functional React + TypeScript flashcard learning application. Users
 - [ ] **Screen reader support** - Better accessibility
 - [ ] **Keyboard navigation** - Full keyboard support
 - [ ] **High contrast mode** - Better visibility
+- [ ] **WCAG audit and improvements** - Full accessibility audit and compliance
 - [ ] **Multiple languages** - Support more languages
 - [ ] **RTL support** - Right-to-left languages
 
@@ -132,6 +133,7 @@ The app is a functional React + TypeScript flashcard learning application. Users
 - [ ] **Error messages** - More user-friendly error messages
 - [ ] **Empty states** - Better empty state designs
 - [ ] **Performance** - Optimize for large flashcard sets
+- [ ] **Performance optimization** - Implement memoization and virtualization for better performance
 
 ---
 
@@ -160,9 +162,11 @@ The app is a functional React + TypeScript flashcard learning application. Users
 - [x] **Component tests** - All components have tests
 - [x] **Store tests** - State management tested
 - [x] **Page tests** - All pages have tests
+- [ ] **Increase test coverage (>80%)** - Achieve comprehensive test coverage
+- [ ] **E2E tests (Playwright/Cypress)** - End-to-end testing with browser automation
 - [ ] **Integration tests** - End-to-end testing
 - [ ] **Performance tests** - Load testing
-- [ ] **Accessibility tests** - A11y testing
+- [ ] **Accessibility tests (WCAG audit)** - A11y testing and WCAG compliance
 
 ### Code Quality
 

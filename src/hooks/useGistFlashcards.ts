@@ -124,9 +124,9 @@ export function useGistFlashcards({
 
   if (rawUrl) {
     try {
-      const urlMatch = rawUrl.match(
-        /gist\.githubusercontent\.com\/([^/]+)\/([a-f0-9]+)\/raw\//
-      );
+      const urlRegex =
+        /gist\.githubusercontent\.com\/([^/]+)\/([a-f0-9]+)\/raw\//;
+      const urlMatch = urlRegex.exec(rawUrl);
       if (urlMatch) {
         effectiveGistOwner = urlMatch[1];
         effectiveGistId = urlMatch[2];

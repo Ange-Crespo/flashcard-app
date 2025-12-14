@@ -29,10 +29,10 @@ function parseGistIdentifier(input: string): GistIdentifier {
     // not a URL, continue
   }
 
-  const sanitized = trimmed.replace(/^\/+|\/+$/g, '');
+  const sanitized = trimmed.replaceAll(/(^\/+|\/+$)/g, '');
   const parts = sanitized.split('/').filter(Boolean);
   if (parts.length >= 2) {
-    return { owner: parts[parts.length - 2], id: parts[parts.length - 1] };
+    return { owner: parts.at(-2)!, id: parts.at(-1)! };
   }
 
   return { id: sanitized };
@@ -49,7 +49,7 @@ export async function fetchGistDeckCatalog(
 }> {
   const { id, owner } = parseGistIdentifier(identifier);
   if (!id) {
-    throw new Error("Impossible d'extraire l'identifiant du Gist.");
+    throw new TypeError("Impossible d'extraire l'identifiant du Gist.");
   }
 
   const apiResponse = await fetch(`https://api.github.com/gists/${id}`, {
@@ -128,7 +128,7 @@ export async function fetchGistDeckCatalog(
   }
 
   if (!Array.isArray(parsed)) {
-    throw new Error('Le JSON du Gist doit être une liste de decks.');
+    throw new TypeError('Le JSON du Gist doit être une liste de decks.');
   }
 
   const decks: GistDeckDescriptor[] = parsed.map(item => {
@@ -229,9 +229,9 @@ export type StoredCatalog = {
 };
 
 export function readStoredCatalog(): StoredCatalog | null {
-  if (typeof window === 'undefined') return null;
+  if (globalThis.window === undefined) return null;
   try {
-    const stored = window.localStorage.getItem(CATALOG_STORAGE_KEY);
+    const stored = globalThis.window.localStorage.getItem(CATALOG_STORAGE_KEY);
     if (!stored) return null;
     return JSON.parse(stored) as StoredCatalog;
   } catch {
@@ -243,9 +243,9 @@ export function persistCatalog(
   decks: GistDeckDescriptor[],
   sourceLabel?: string
 ) {
-  if (typeof window === 'undefined') return;
+  if (globalThis.window === undefined) return;
   try {
-    window.localStorage.setItem(
+    globalThis.window.localStorage.setItem(
       CATALOG_STORAGE_KEY,
       JSON.stringify({ decks, sourceLabel })
     );

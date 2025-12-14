@@ -11,11 +11,13 @@ import './FlashcardDeckCreator.css';
  * Flashcard deck creator component for creating and editing flashcard decks
  * Allows users to create flashcards with front/back content, category, and tags
  */
+interface FlashcardDeckCreatorProps {
+  readonly onComplete: () => void;
+}
+
 export function FlashcardDeckCreator({
   onComplete,
-}: {
-  onComplete: () => void;
-}) {
+}: FlashcardDeckCreatorProps) {
   const { showSuccess, showError } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -269,8 +271,9 @@ export function FlashcardDeckCreator({
 
                   <div className="flashcard-fields">
                     <div className="form-group">
-                      <label>Front (Question)</label>
+                      <label htmlFor={`front-${index}`}>Front (Question)</label>
                       <textarea
+                        id={`front-${index}`}
                         value={getFaceValue(card.front)}
                         onChange={e =>
                           updateFlashcard(index, 'front', e.target.value)
@@ -289,8 +292,9 @@ export function FlashcardDeckCreator({
                     </div>
 
                     <div className="form-group">
-                      <label>Back (Réponse)</label>
+                      <label htmlFor={`back-${index}`}>Back (Réponse)</label>
                       <textarea
+                        id={`back-${index}`}
                         value={getFaceValue(card.back)}
                         onChange={e =>
                           updateFlashcard(index, 'back', e.target.value)
@@ -310,8 +314,11 @@ export function FlashcardDeckCreator({
 
                     <div className="flashcard-meta">
                       <div className="form-group">
-                        <label>Catégorie (optionnel)</label>
+                        <label htmlFor={`category-${index}`}>
+                          Catégorie (optionnel)
+                        </label>
                         <input
+                          id={`category-${index}`}
                           type="text"
                           value={card.category || ''}
                           onChange={e =>
@@ -322,10 +329,11 @@ export function FlashcardDeckCreator({
                         />
                       </div>
                       <div className="form-group">
-                        <label>
+                        <label htmlFor={`tags-${index}`}>
                           Tags (optionnel, séparés par des virgules)
                         </label>
                         <input
+                          id={`tags-${index}`}
                           type="text"
                           value={card.tags?.join(', ') || ''}
                           onChange={e =>
@@ -335,7 +343,7 @@ export function FlashcardDeckCreator({
                               e.target.value
                                 .split(',')
                                 .map(t => t.trim())
-                                .filter(t => t)
+                                .filter(Boolean)
                             )
                           }
                           placeholder="ex: algèbre, équations"
@@ -383,7 +391,7 @@ export function FlashcardDeckCreator({
                     className="form-input"
                   />
                   <small className="form-help">
-                    Votre token personnel GitHub avec les permissions 'gist'.
+                    Votre token personnel GitHub avec les permissions 'gist'.{' '}
                     <a
                       href="https://github.com/settings/tokens"
                       target="_blank"

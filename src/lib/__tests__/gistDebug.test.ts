@@ -37,8 +37,10 @@ describe('GistDebugLogger', () => {
       gistDebugLogger.log('init', 'Test message');
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[Gist Debug]'),
-        'Test message'
+        expect.stringContaining('[Gist Debug]')
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Test message')
       );
 
       consoleSpy.mockRestore();
@@ -59,12 +61,17 @@ describe('GistDebugLogger', () => {
     });
 
     it('should log success messages', () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
       gistDebugLogger.enable();
 
       gistDebugLogger.success('complete', 'Success message');
 
-      expect(consoleSpy).toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[Gist Debug]')
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Success message')
+      );
 
       consoleSpy.mockRestore();
     });

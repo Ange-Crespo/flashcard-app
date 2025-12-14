@@ -34,8 +34,9 @@ describe('flashcard mapping utils', () => {
   it('includes metadata fields in default mapping when metadata exists', () => {
     const mapping = getDefaultMapping(baseCard, 'demo');
     expect(mapping.metadataFields).toContain('__metadata__Level');
-    expect(mapping.frontExamplesEnabled).toBe(true);
-    expect(mapping.backExamplesEnabled).toBe(true);
+    // frontExamplesEnabled defaults to false unless examples are explicitly configured
+    expect(mapping.frontExamplesEnabled).toBe(false);
+    expect(mapping.backExamplesEnabled).toBe(false);
   });
 
   it('applies mapping overrides for text, metadata, tags, and examples', () => {
@@ -46,6 +47,7 @@ describe('flashcard mapping utils', () => {
     mapping.tagFields = ['customTag'];
     mapping.metadataEnabled = true;
     mapping.metadataFields = ['customFront'];
+    mapping.frontExamplesEnabled = true;
     mapping.examples = [
       {
         id: 'custom-front-example',
@@ -60,6 +62,7 @@ describe('flashcard mapping utils', () => {
     expect(result.back?.text).toBe('Custom Back');
     expect(result.tags).toEqual(['default', 'tag-one', 'tag-two']);
     expect(result.metadata?.customFront).toBe('Custom Front');
+    // The translation comes from the original card's frontExamples[0].translation
     expect(result.frontExamples?.[0].translation).toBe('Hello');
   });
 
