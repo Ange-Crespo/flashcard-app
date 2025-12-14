@@ -4,6 +4,7 @@
  * in-memory fallback for non-browser/test environments.
  */
 import { evaluateFsrsReview, Grade } from './fsrs';
+import { logger } from './logger';
 
 /**
  * User progress data for a single flashcard
@@ -108,7 +109,7 @@ function setStorageValue(name: string, value: string) {
       storage.setItem(name, value);
       return;
     } catch (error) {
-      console.error('Error writing to localStorage:', error);
+      logger.error('Error writing to localStorage', error);
     }
   }
   memoryStore.set(name, value);
@@ -120,7 +121,7 @@ function getStorageValue(name: string): string | null {
     try {
       return storage.getItem(name);
     } catch (error) {
-      console.error('Error reading from localStorage:', error);
+      logger.error('Error reading from localStorage', error);
     }
   }
   return memoryStore.get(name) ?? null;
@@ -132,7 +133,7 @@ function deleteStorageValue(name: string) {
     try {
       storage.removeItem(name);
     } catch (error) {
-      console.error('Error removing from localStorage:', error);
+      logger.error('Error removing from localStorage', error);
     }
   }
   memoryStore.delete(name);
@@ -187,7 +188,7 @@ export function loadUserProgress(): UserProgress {
       return JSON.parse(decodeURIComponent(storedValue)) as UserProgress;
     }
   } catch (error) {
-    console.error('Error loading user progress from storage:', error);
+    logger.error('Error loading user progress from storage', error);
     return {};
   }
 }
@@ -200,7 +201,7 @@ export function saveUserProgress(progress: UserProgress): void {
     const serialized = JSON.stringify(progress);
     setStorageValue(STORAGE_KEY, serialized);
   } catch (error) {
-    console.error('Error saving user progress to storage:', error);
+    logger.error('Error saving user progress to storage', error);
   }
 }
 
@@ -259,10 +260,9 @@ export function updateFlashcardProgress(
 
   // Debug: Log when progress is saved with hash-based ID
   if (flashcardId.includes('-') && flashcardId.length > 20) {
-    console.log(
-      '[Progress] Saved progress with hash-based ID:',
-      flashcardId.substring(0, 30) + '...'
-    );
+    logger.debug('Saved progress with hash-based ID', {
+      idPrefix: flashcardId.substring(0, 30) + '...',
+    });
   }
 }
 

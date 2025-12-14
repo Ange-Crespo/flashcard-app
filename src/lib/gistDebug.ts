@@ -3,6 +3,8 @@
  * Provides comprehensive logging and error tracking for sensitive gist functionality
  */
 
+import { logger } from './logger';
+
 export type DebugStep =
   | 'init'
   | 'parse_identifier'
@@ -32,28 +34,29 @@ export interface DebugLogEntry {
 
 class GistDebugLogger {
   private logs: DebugLogEntry[] = [];
-  private maxLogs = 100;
+  private readonly maxLogs = 100;
   private enabled: boolean;
 
   constructor() {
     // Enable debug mode if localStorage flag is set or in development
     this.enabled =
-      typeof window !== 'undefined' &&
-      (localStorage.getItem('gist_debug_enabled') === 'true' ||
+      typeof globalThis.window !== 'undefined' &&
+      (globalThis.window.localStorage.getItem('gist_debug_enabled') ===
+        'true' ||
         import.meta.env.DEV);
   }
 
   enable() {
     this.enabled = true;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('gist_debug_enabled', 'true');
+    if (typeof globalThis.window !== 'undefined') {
+      globalThis.window.localStorage.setItem('gist_debug_enabled', 'true');
     }
   }
 
   disable() {
     this.enabled = false;
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('gist_debug_enabled');
+    if (typeof globalThis.window !== 'undefined') {
+      globalThis.window.localStorage.removeItem('gist_debug_enabled');
     }
   }
 
@@ -84,19 +87,16 @@ class GistDebugLogger {
 
     if (this.enabled) {
       const prefix = `[Gist Debug] [${step.toUpperCase()}]`;
-      const logMethod =
-        level === 'error'
-          ? console.error
-          : level === 'warn'
-            ? console.warn
-            : level === 'success'
-              ? console.log
-              : console.info;
+      const fullMessage = `${prefix} ${message}`;
 
-      if (data) {
-        logMethod(prefix, message, data);
+      if (level === 'error') {
+        logger.error(fullMessage, undefined, data);
+      } else if (level === 'warn') {
+        logger.warn(fullMessage, data);
+      } else if (level === 'success') {
+        logger.success(fullMessage, data);
       } else {
-        logMethod(prefix, message);
+        logger.info(fullMessage, data);
       }
     }
   }
@@ -143,7 +143,7 @@ class GistDebugLogger {
 
   getLastError(): DebugLogEntry | null {
     const errorLogs = this.logs.filter(log => log.level === 'error');
-    return errorLogs.length > 0 ? errorLogs[errorLogs.length - 1] : null;
+    return errorLogs.length > 0 ? (errorLogs.at(-1) ?? null) : null;
   }
 
   clear() {
@@ -160,8 +160,7 @@ class GistDebugLogger {
       steps: this.logs.map(log => log.step),
       errors: this.logs.filter(log => log.level === 'error'),
       warnings: this.logs.filter(log => log.level === 'warn'),
-      lastStep:
-        this.logs.length > 0 ? this.logs[this.logs.length - 1].step : null,
+      lastStep: this.logs.length > 0 ? (this.logs.at(-1)?.step ?? null) : null,
     };
   }
 }
@@ -202,19 +201,21 @@ export function formatGistError(
   if (context) {
     const contextParts: string[] = [];
     if (context.gistId) {
-      contextParts.push(`Gist ID: ${context.gistId}`);
+      contextParts.push(`Gist ID: ${String(context.gistId)}`);
     }
     if (context.owner) {
-      contextParts.push(`Propriétaire: ${context.owner}`);
+      contextParts.push(`Propriétaire: ${String(context.owner)}`);
     }
     if (context.statusCode) {
-      contextParts.push(`Code HTTP: ${context.statusCode}`);
+      contextParts.push(`Code HTTP: ${String(context.statusCode)}`);
     }
     if (context.fileName) {
-      contextParts.push(`Fichier: ${context.fileName}`);
+      contextParts.push(`Fichier: ${String(context.fileName)}`);
     }
     if (context.flashcardsCount !== undefined) {
-      contextParts.push(`Flashcards trouvées: ${context.flashcardsCount}`);
+      contextParts.push(
+        `Flashcards trouvées: ${String(context.flashcardsCount)}`
+      );
     }
 
     if (contextParts.length > 0) {

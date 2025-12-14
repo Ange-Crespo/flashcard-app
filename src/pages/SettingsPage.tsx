@@ -10,6 +10,7 @@ import {
 } from '../lib/gistCatalog';
 import { getAllThemes } from '../lib/themes';
 import { useAppStore } from '../store';
+import { logger } from '../lib/logger';
 import './SettingsPage.css';
 
 type SettingsSectionId = 'export' | 'gist' | 'theme' | 'debug';
@@ -113,7 +114,7 @@ export default function SettingsPage() {
         setImportStatusMessage(successMsg);
 
         if (result.warnings && result.warnings.length > 0) {
-          console.warn('Import warnings:', result.warnings);
+          logger.warn('Import warnings', { warnings: result.warnings });
         }
       } else {
         setImportStatusMessage(`Erreur lors de l'import : ${result.error}`);

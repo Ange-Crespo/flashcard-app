@@ -6,6 +6,8 @@ import {
 } from '../lib/localDecks';
 import { mockFlashcards } from '../lib/mockFlashcards';
 import { gistDebugLogger, formatGistError } from '../lib/gistDebug';
+import { logger } from '../lib/logger';
+import { sanitizeString, validateFlashcard } from '../lib/validation';
 import type {
   GistFlashcard,
   GistFlashcardFace,
@@ -43,14 +45,14 @@ function normalizeFace(
   }
 
   if (typeof face === 'string') {
-    return { title: fallbackTitle, text: face };
+    return { title: fallbackTitle, text: sanitizeString(face) };
   }
 
   return {
-    title: face.title ?? fallbackTitle,
-    text: face.text ?? '',
-    subText: face.subText,
-    hint: face.hint,
+    title: face.title ? sanitizeString(face.title) : fallbackTitle,
+    text: sanitizeString(face.text ?? ''),
+    subText: face.subText ? sanitizeString(face.subText) : undefined,
+    hint: face.hint ? sanitizeString(face.hint) : undefined,
   };
 }
 
@@ -64,11 +66,13 @@ function normalizeExamples(
   return examples
     .filter(example => Boolean(example?.text))
     .map(example => ({
-      id: example.id,
-      label: example.label,
-      text: example.text,
-      translation: example.translation,
-      note: example.note,
+      id: example.id ? sanitizeString(example.id) : undefined,
+      label: example.label ? sanitizeString(example.label) : undefined,
+      text: sanitizeString(example.text),
+      translation: example.translation
+        ? sanitizeString(example.translation)
+        : undefined,
+      note: example.note ? sanitizeString(example.note) : undefined,
     }));
 }
 
@@ -126,15 +130,13 @@ export function useGistFlashcards({
       if (urlMatch) {
         effectiveGistOwner = urlMatch[1];
         effectiveGistId = urlMatch[2];
-        console.log(
-          `[useGistFlashcards] Extracted from rawUrl: owner=${effectiveGistOwner}, id=${effectiveGistId}`
-        );
+        logger.debug('Extracted Gist info from rawUrl', {
+          owner: effectiveGistOwner,
+          id: effectiveGistId,
+        });
       }
     } catch (error) {
-      console.warn(
-        '[useGistFlashcards] Could not extract Gist ID from rawUrl:',
-        error
-      );
+      logger.warn('Could not extract Gist ID from rawUrl', { error });
     }
   }
 
@@ -182,10 +184,9 @@ export function useGistFlashcards({
             source: 'local_dataset',
           }
         );
-        console.log(
-          '✅ Using Mandarin dataset flashcards:',
-          datasetFallback.length
-        );
+        logger.success('Using Mandarin dataset flashcards', {
+          count: datasetFallback.length,
+        });
         return;
       }
 
@@ -198,10 +199,9 @@ export function useGistFlashcards({
           source: 'mock',
         }
       );
-      console.log(
-        '✅ Using mock flashcards for testing:',
-        mockFlashcards.length
-      );
+      logger.success('Using mock flashcards for testing', {
+        count: mockFlashcards.length,
+      });
     },
     [onError]
   );
@@ -282,9 +282,22 @@ export function useGistFlashcards({
           }
         );
 
-        const appFlashcards = result.flashcards.map(
+        // Convert and validate flashcards
+        const convertedFlashcards = result.flashcards.map(
           convertGistFlashcardToAppFlashcard
         );
+        // Validate all flashcards and filter out invalid ones
+        const appFlashcards = convertedFlashcards
+          .map(card => validateFlashcard(card))
+          .filter((card): card is Flashcard => card !== null);
+
+        if (appFlashcards.length !== convertedFlashcards.length) {
+          logger.warn('Some flashcards were invalid and filtered out', {
+            total: convertedFlashcards.length,
+            valid: appFlashcards.length,
+            invalid: convertedFlashcards.length - appFlashcards.length,
+          });
+        }
 
         gistDebugLogger.success(
           'complete',
@@ -299,7 +312,9 @@ export function useGistFlashcards({
         setFlashcards(appFlashcards);
         setError(null);
         hasLoadedRef.current = gistIdToLoad;
-        console.log('✅ Loaded flashcards from Gist:', appFlashcards.length);
+        logger.success('Loaded flashcards from Gist', {
+          count: appFlashcards.length,
+        });
         return;
       }
 
@@ -320,9 +335,11 @@ export function useGistFlashcards({
         gistId: gistIdToLoad.substring(0, 20),
         owner: currentGistOwner,
       });
-      console.warn(
-        '⚠️ Failed to load flashcards from Gist, using local dataset instead:',
-        formattedError
+      logger.warn(
+        'Failed to load flashcards from Gist, using local dataset instead',
+        {
+          error: formattedError,
+        }
       );
       if (!hasLoadedFallbackRef.current) {
         loadFallbackFlashcards(formattedError);
@@ -347,9 +364,11 @@ export function useGistFlashcards({
         gistId: gistIdToLoad.substring(0, 20),
         owner: currentGistOwner,
       });
-      console.warn(
-        '⚠️ Error loading flashcards from Gist, using local dataset instead:',
-        formattedError
+      logger.warn(
+        'Error loading flashcards from Gist, using local dataset instead',
+        {
+          error: formattedError,
+        }
       );
       if (!hasLoadedFallbackRef.current) {
         loadFallbackFlashcards(formattedError);

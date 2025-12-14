@@ -1,11 +1,17 @@
 import { NavLink, Route, Routes } from 'react-router-dom';
 import { Search, MessageCircle, GitHub, Plus, Settings } from 'react-feather';
-import { useEffect, useMemo, useState } from 'react';
-import DiscoverPage from './pages/DiscoverPage';
-import ProgressPage from './pages/ProgressPage';
-import { FlashcardDemoPage } from './pages/FlashcardDemoPage';
-import FlashcardDeckCreatorPage from './pages/FlashcardDeckCreatorPage';
-import SettingsPage from './pages/SettingsPage';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { logger } from './lib/logger';
+import { LoadingSpinner } from './components/LoadingSpinner';
+
+// Lazy load routes for better performance
+const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
+const ProgressPage = lazy(() => import('./pages/ProgressPage'));
+const FlashcardDemoPage = lazy(() => import('./pages/FlashcardDemoPage'));
+const FlashcardDeckCreatorPage = lazy(
+  () => import('./pages/FlashcardDeckCreatorPage')
+);
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 import { ToastContainer } from './components/Toast';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { GistDebugPanel } from './components/GistDebugPanel';
@@ -56,13 +62,14 @@ function App() {
     if (flashcards.length === 0) {
       if (gistFlashcards.length > 0) {
         setFlashcards(gistFlashcards);
-        console.log('✅ Loaded flashcards from Gist:', gistFlashcards.length);
+        logger.success('Loaded flashcards from Gist', {
+          count: gistFlashcards.length,
+        });
       } else if (localDeckFlashcards.length > 0) {
         setFlashcards(localDeckFlashcards);
-        console.log(
-          '✅ Loaded local dataset flashcards:',
-          localDeckFlashcards.length
-        );
+        logger.success('Loaded local dataset flashcards', {
+          count: localDeckFlashcards.length,
+        });
       }
     }
     // Only depend on gistFlashcards.length to prevent infinite loops
@@ -101,24 +108,26 @@ function App() {
           className="app-main"
         >
           <ErrorBoundary>
-            <Routes>
-              <Route path="/" element={<DiscoverPage />} />
-              <Route path="/progress" element={<ProgressPage />} />
-              <Route path="/matches" element={<ProgressPage />} />
-              <Route path="/gist-demo" element={<FlashcardDemoPage />} />
-              <Route path="/create" element={<FlashcardDeckCreatorPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route
-                path="*"
-                element={
-                  <div style={{ padding: '20px', textAlign: 'center' }}>
-                    <h2>Page Not Found</h2>
-                    <p>La page que vous recherchez n'existe pas.</p>
-                    <a href={import.meta.env.BASE_URL}>Retour à l'accueil</a>
-                  </div>
-                }
-              />
-            </Routes>
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
+                <Route path="/" element={<DiscoverPage />} />
+                <Route path="/progress" element={<ProgressPage />} />
+                <Route path="/matches" element={<ProgressPage />} />
+                <Route path="/gist-demo" element={<FlashcardDemoPage />} />
+                <Route path="/create" element={<FlashcardDeckCreatorPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route
+                  path="*"
+                  element={
+                    <div style={{ padding: '20px', textAlign: 'center' }}>
+                      <h2>Page Not Found</h2>
+                      <p>La page que vous recherchez n'existe pas.</p>
+                      <a href={import.meta.env.BASE_URL}>Retour à l'accueil</a>
+                    </div>
+                  }
+                />
+              </Routes>
+            </Suspense>
           </ErrorBoundary>
         </main>
         <nav role="navigation" className="nav">

@@ -6,6 +6,7 @@ import { SwipeDeckSkeleton } from './FlashcardSkeleton';
 import { useToast } from '../hooks/useToast';
 import { X, Check, Eye, EyeOff, Settings } from 'react-feather';
 import { useAppStore } from '../store';
+import { logger } from '../lib/logger';
 import { DeckMappingModal } from './DeckMappingModal';
 import {
   loadDeckFieldMapping,
@@ -63,7 +64,7 @@ export function FlashcardDeck() {
     try {
       localStorage.setItem('flashcard_showFrontFirst', String(showFrontFirst));
     } catch (error) {
-      console.warn('Failed to save showFrontFirst preference:', error);
+      logger.warn('Failed to save showFrontFirst preference', { error });
     }
   }, [showFrontFirst]);
 

@@ -1,4 +1,5 @@
 import type { GistDeckDescriptor } from './gistDecks';
+import { logger } from './logger';
 
 type GistIdentifier = {
   id: string;
@@ -157,22 +158,25 @@ export async function fetchGistDeckCatalog(
         if (urlMatch) {
           gistOwner = urlMatch[1];
           gistId = urlMatch[2];
-          console.log(
-            `[GistCatalog] Extracted from rawUrl: owner=${gistOwner}, id=${gistId}, rawUrl=${rawUrl.substring(0, 80)}...`
-          );
+          logger.debug('Extracted Gist info from rawUrl', {
+            owner: gistOwner,
+            id: gistId,
+            rawUrlPrefix: rawUrl.substring(0, 80),
+          });
         } else {
-          console.warn(
-            `[GistCatalog] Could not extract Gist ID from rawUrl: ${rawUrl.substring(0, 80)}...`
-          );
+          logger.warn('Could not extract Gist ID from rawUrl', {
+            rawUrlPrefix: rawUrl.substring(0, 80),
+          });
         }
       } catch (error) {
-        console.error('[GistCatalog] Error parsing rawUrl:', error);
+        logger.error('Error parsing rawUrl', error);
         // If parsing fails, use original values
       }
     } else {
-      console.log(
-        `[GistCatalog] No rawUrl found for deck: ${item.name || item.id}`
-      );
+      logger.debug('No rawUrl found for deck', {
+        name: item.name,
+        id: item.id,
+      });
     }
 
     // Construct regular Gist URL for display (or use provided gistUrl if it's not a raw URL)
@@ -196,7 +200,7 @@ export async function fetchGistDeckCatalog(
       rawUrl, // Use the raw URL as-is from the catalog
     };
 
-    console.log(`[GistCatalog] Processed deck:`, {
+    logger.debug('Processed deck', {
       name: deck.name,
       id: deck.id,
       owner: deck.owner,

@@ -10,6 +10,7 @@ import {
   safeStringify,
 } from './gistDebug';
 import { convertGenericFlashcards } from './genericFlashcardConverter';
+import { validateGistId, validateGistOwner, validateUrl } from './validation';
 
 // Re-export types for backward compatibility
 export type { GistResponse, GistError } from '../types/gist';
@@ -528,6 +529,43 @@ class GitHubGistService {
         success: false,
         error: formatGistError('validate_input', errorMsg),
       };
+    }
+
+    // Validate Gist ID format
+    const validatedGistId = validateGistId(gistId);
+    if (!validatedGistId) {
+      const errorMsg = 'Format de Gist ID invalide';
+      gistDebugLogger.error('validate_input', errorMsg, new Error(errorMsg));
+      return {
+        success: false,
+        error: formatGistError('validate_input', errorMsg),
+      };
+    }
+
+    // Validate rawUrl if provided
+    if (rawUrl) {
+      const validatedUrl = validateUrl(rawUrl);
+      if (!validatedUrl) {
+        const errorMsg = 'URL invalide ou protocole non autorisé';
+        gistDebugLogger.error('validate_input', errorMsg, new Error(errorMsg));
+        return {
+          success: false,
+          error: formatGistError('validate_input', errorMsg),
+        };
+      }
+    }
+
+    // Validate owner if provided
+    if (this.gistOwner) {
+      const validatedOwner = validateGistOwner(this.gistOwner);
+      if (!validatedOwner) {
+        const errorMsg = "Format de nom d'utilisateur GitHub invalide";
+        gistDebugLogger.error('validate_input', errorMsg, new Error(errorMsg));
+        return {
+          success: false,
+          error: formatGistError('validate_input', errorMsg),
+        };
+      }
     }
 
     const parsed = parseGistIdentifier(gistId);

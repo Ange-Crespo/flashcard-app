@@ -4,6 +4,7 @@ import { Save, ArrowLeft, Plus, X, Book } from 'react-feather';
 import { useToast } from '../hooks/useToast';
 import { githubGistService } from '../lib/githubGist';
 import type { GistFlashcard, GistFlashcardFace } from '../types/gist';
+import { logger } from '../lib/logger';
 import './FlashcardDeckCreator.css';
 
 /**
@@ -145,7 +146,7 @@ export function FlashcardDeckCreator({
             );
           }
         } catch (error) {
-          console.error('Error creating Gist:', error);
+          logger.error('Error creating Gist', error);
           showError('Erreur Gist', "Échec de l'upload vers GitHub Gist");
         }
       } else {
@@ -157,7 +158,7 @@ export function FlashcardDeckCreator({
         onComplete();
       }
     } catch (error) {
-      console.error('Error saving deck:', error);
+      logger.error('Error saving deck', error);
       showError(
         'Échec de la Sauvegarde',
         'Échec de la sauvegarde du deck. Veuillez réessayer.'

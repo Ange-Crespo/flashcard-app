@@ -4,6 +4,7 @@ import { GistFlashcardReader } from '../components/GistFlashcardReader';
 import { useGistFlashcards } from '../hooks/useGistFlashcards';
 import { FlashcardDeck } from '../components/FlashcardDeck';
 import type { Flashcard } from '../store';
+import { logger } from '../lib/logger';
 import './FlashcardDemoPage.css';
 
 export function FlashcardDemoPage() {
@@ -47,11 +48,11 @@ export function FlashcardDemoPage() {
   };
 
   const handleFlashcardsLoaded = (loadedFlashcards: Flashcard[]) => {
-    console.log('Flashcards chargés:', loadedFlashcards);
+    logger.info('Flashcards loaded', { count: loadedFlashcards.length });
   };
 
   const handleError = (error: string) => {
-    console.error('Erreur:', error);
+    logger.error('Error loading flashcards', new Error(error));
   };
 
   return (

@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'react-feather';
+import { logger } from '../lib/logger';
 import './ErrorBoundary.css';
 
 interface Props {
@@ -29,8 +30,10 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log the error to console and any error reporting service
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    // Log the error using logger
+    logger.error('ErrorBoundary caught an error', error, {
+      componentStack: errorInfo.componentStack,
+    });
 
     this.setState({
       error,
@@ -106,10 +109,37 @@ export class ErrorBoundary extends Component<Props, State> {
 
 /**
  * Hook version of ErrorBoundary for functional components
+ * Returns a function that can be used to handle errors in functional components
+ *
+ * @example
+ * const handleError = useErrorHandler();
+ * try {
+ *   // some code
+ * } catch (error) {
+ *   handleError(error);
+ * }
  */
 export function useErrorHandler() {
-  return (error: Error, errorInfo?: ErrorInfo) => {
-    console.error('Error caught by useErrorHandler:', error, errorInfo);
+  return (
+    error: Error | unknown,
+    errorInfo?: ErrorInfo | Record<string, unknown>
+  ) => {
+    if (error instanceof Error) {
+      logger.error('Error caught by useErrorHandler', error, {
+        ...(errorInfo && typeof errorInfo === 'object' ? errorInfo : {}),
+        componentStack:
+          errorInfo &&
+          typeof errorInfo === 'object' &&
+          'componentStack' in errorInfo
+            ? String(errorInfo.componentStack)
+            : undefined,
+      });
+    } else {
+      logger.error('Error caught by useErrorHandler', error, {
+        ...(errorInfo && typeof errorInfo === 'object' ? errorInfo : {}),
+      });
+    }
     // In a real app, you would also log to an error reporting service
+    // Example: errorReportingService.captureException(error, { extra: errorInfo });
   };
 }
