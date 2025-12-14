@@ -32,13 +32,28 @@ export const specialFieldOptions: FieldOption[] = [
   { value: SPECIAL_FIELDS.BACK_HINT, label: 'Réponse - indice' },
 ];
 
-function getRawFields(card: Flashcard): Record<string, unknown> {
+export function getRawFields(card: Flashcard): Record<string, unknown> {
   if (card.rawFields) {
     return card.rawFields;
   }
+  // Check for raw data in extras.raw (for local decks)
   const rawFromExtras = card.extras?.raw;
   if (rawFromExtras && typeof rawFromExtras === 'object') {
     return rawFromExtras as Record<string, unknown>;
+  }
+  // Check if extras itself contains the raw data (for generic converter)
+  if (
+    card.extras &&
+    typeof card.extras === 'object' &&
+    !Array.isArray(card.extras)
+  ) {
+    // Exclude known properties that are not part of raw data
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { raw, ...rest } = card.extras as Record<string, unknown>;
+    // If there's actual data in extras (not just metadata), use it
+    if (Object.keys(rest).length > 0) {
+      return rest;
+    }
   }
   return {};
 }
@@ -217,8 +232,8 @@ export function getDefaultMapping(
       hintField: SPECIAL_FIELDS.BACK_HINT,
     },
     examples: defaultExampleMappings,
-    frontExamplesEnabled: (card.frontExamples?.length ?? 0) > 0,
-    backExamplesEnabled: (card.backExamples?.length ?? 0) > 0,
+    frontExamplesEnabled: false,
+    backExamplesEnabled: false,
     sharedExamplesEnabled: (card.examples?.length ?? 0) > 0,
     tagFields: [],
     tagsEnabled: (card.tags?.length ?? 0) > 0,
@@ -281,36 +296,58 @@ export function applyDeckFieldMapping(
     hint: getFieldValue(card, mapping.back.hintField) ?? card.back?.hint,
   };
 
-  const derivedFrontExamples = mapping.examples.length
-    ? mapExamples(card, mapping.examples, 'front')
-    : [];
-  const derivedBackExamples = mapping.examples.length
-    ? mapExamples(card, mapping.examples, 'back')
-    : [];
+  // Process examples only if the toggle is enabled
+  // When mapping is configured, only show mapped examples (not original card examples)
+  let frontExamples: FlashcardExample[] | undefined;
+  if (mapping.frontExamplesEnabled === false) {
+    frontExamples = undefined;
+  } else {
+    // Only use examples from the mapping configuration, not original card examples
+    const derivedFrontExamples = mapping.examples.length
+      ? mapExamples(card, mapping.examples, 'front')
+      : [];
+    // Only include original card examples if no mapping examples are configured
+    if (derivedFrontExamples.length > 0) {
+      frontExamples = derivedFrontExamples;
+    } else {
+      // Fall back to original card examples only if no mapping examples exist
+      frontExamples =
+        card.frontExamples && card.frontExamples.length > 0
+          ? card.frontExamples
+          : undefined;
+    }
+  }
 
-  const combinedFrontExamples = [
-    ...derivedFrontExamples,
-    ...(card.frontExamples ?? []),
-  ];
-  const combinedBackExamples = [
-    ...derivedBackExamples,
-    ...(card.backExamples ?? []),
-  ];
-
-  const frontExamples =
-    mapping.frontExamplesEnabled === false
-      ? undefined
-      : combinedFrontExamples.length > 0
-        ? combinedFrontExamples
-        : undefined;
-  const backExamples =
-    mapping.backExamplesEnabled === false
-      ? undefined
-      : combinedBackExamples.length > 0
-        ? combinedBackExamples
-        : undefined;
+  let backExamples: FlashcardExample[] | undefined;
+  if (mapping.backExamplesEnabled === false) {
+    backExamples = undefined;
+  } else {
+    // Only use examples from the mapping configuration, not original card examples
+    const derivedBackExamples = mapping.examples.length
+      ? mapExamples(card, mapping.examples, 'back')
+      : [];
+    // Only include original card examples if no mapping examples are configured
+    if (derivedBackExamples.length > 0) {
+      backExamples = derivedBackExamples;
+    } else {
+      // Fall back to original card examples only if no mapping examples exist
+      backExamples =
+        card.backExamples && card.backExamples.length > 0
+          ? card.backExamples
+          : undefined;
+    }
+  }
+  // Shared examples should only be shown if:
+  // 1. sharedExamplesEnabled is not false
+  // 2. Both front and back examples are enabled (or at least not explicitly disabled)
+  // 3. No side-specific examples are mapped (to avoid duplication)
   const sharedExamples =
-    mapping.sharedExamplesEnabled === false ? undefined : card.examples;
+    mapping.sharedExamplesEnabled === false ||
+    mapping.frontExamplesEnabled === false ||
+    mapping.backExamplesEnabled === false ||
+    (mapping.examples.length > 0 && (frontExamples || backExamples))
+      ? undefined
+      : card.examples;
 
   const mappedTagFields =
     mapping.tagsEnabled === false ? [] : (mapping.tagFields ?? []);

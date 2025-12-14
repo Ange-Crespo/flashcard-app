@@ -149,28 +149,57 @@ function getNumber(entry: DeckEntry, key: string): number | undefined {
   return typeof value === 'number' ? value : undefined;
 }
 
-// Load all card files and create deck builders
+/**
+ * Check if an entry is a Mandarin word entry
+ */
+function isMandarinEntry(entry: unknown): entry is DeckEntry {
+  if (typeof entry !== 'object' || entry === null) return false;
+  return 'word' in entry;
+}
+
+/**
+ * Check if an entry is a SQuAD flashcard entry (converted format)
+ */
+function isSQuADEntry(entry: unknown): entry is DeckEntry {
+  if (typeof entry !== 'object' || entry === null) return false;
+  return 'question' in entry && 'answer' in entry;
+}
+
+// Load all card files and separate by format
 function loadAllCardDecks() {
-  const allCards: DeckEntry[] = [];
+  const mandarinCards: DeckEntry[] = [];
+  const squadCards: DeckEntry[] = [];
 
   // Process all imported JSON files
-  for (const module of Object.values(cardFiles)) {
-    const data = module.default as DeckEntry[];
-    if (Array.isArray(data)) {
-      allCards.push(...data);
+  for (const [, module] of Object.entries(cardFiles)) {
+    const data = module.default;
+
+    // Must be an array to process
+    if (!Array.isArray(data)) continue;
+
+    // Type assertion: we assume array items are DeckEntry-compatible
+    const entries = data as DeckEntry[];
+
+    // Check first entry to determine format
+    if (entries.length > 0) {
+      if (isMandarinEntry(entries[0])) {
+        mandarinCards.push(...entries);
+      } else if (isSQuADEntry(entries[0])) {
+        squadCards.push(...entries);
+      }
     }
   }
 
-  return allCards;
+  return { mandarinCards, squadCards };
 }
 
-const allCardsData = loadAllCardDecks();
+const { mandarinCards, squadCards } = loadAllCardDecks();
 
 const mandarinDeckBuilder = createDeckBuilder({
   deckId: 'mandarin-core',
   deckName: 'Mandarin Core Vocabulary',
   language: 'mandarin',
-  data: allCardsData,
+  data: mandarinCards,
   front: {
     title: 'Mot',
     text: entry => getString(entry, 'word') ?? '',
@@ -236,6 +265,70 @@ const mandarinDeckBuilder = createDeckBuilder({
 });
 
 registerLocalDeck('mandarin-core', mandarinDeckBuilder);
+
+// Create SQuAD deck builder
+const squadDeckBuilder = createDeckBuilder({
+  deckId: 'squad-qa',
+  deckName: 'Stanford Question Answering Dataset',
+  language: 'english',
+  data: squadCards,
+  front: {
+    title: 'Question',
+    text: entry => getString(entry, 'question') ?? '',
+    hint: () => 'Lisez la question et réfléchissez à la réponse',
+  },
+  back: {
+    title: 'Réponse',
+    text: entry => getString(entry, 'answer') ?? '',
+    hint: () => 'Vérifiez votre réponse',
+  },
+  category: entry => getString(entry, 'title'),
+  tags: entry => {
+    const title = getString(entry, 'title');
+    return title ? [title, 'QA', 'SQuAD'] : ['QA', 'SQuAD'];
+  },
+  metadata: entry => {
+    const metadata: Record<string, FlashcardMetadataValue> = {};
+    const title = getString(entry, 'title');
+    const answerStart = getNumber(entry, 'answer_start');
+    if (title) metadata['Topic'] = title;
+    if (typeof answerStart === 'number')
+      metadata['Answer Position'] = answerStart;
+    return Object.keys(metadata).length > 0 ? metadata : undefined;
+  },
+  frontExamples: entry => {
+    const context = getString(entry, 'context');
+    if (!context) return undefined;
+    // Show a truncated context as example
+    const truncatedContext =
+      context.length > 200 ? context.substring(0, 200) + '...' : context;
+    return [
+      {
+        label: 'Contexte',
+        text: truncatedContext,
+      },
+    ];
+  },
+  backExamples: entry => {
+    const allAnswers = entry['all_answers'];
+    if (!Array.isArray(allAnswers) || allAnswers.length <= 1) return undefined;
+    return [
+      {
+        label: 'Autres réponses possibles',
+        text: allAnswers.slice(1).join(', '),
+      },
+    ];
+  },
+  extras: entry => ({
+    source: 'SQuAD',
+    qa_id: getString(entry, 'qa_id'),
+    context: getString(entry, 'context'),
+    title: getString(entry, 'title'),
+  }),
+  isUseful: () => true, // All SQuAD entries are useful
+});
+
+registerLocalDeck('squad-qa', squadDeckBuilder);
 
 export const DEFAULT_LOCAL_DECK_ID = 'mandarin-core';
 

@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
-import { X, Plus, Trash, Save } from 'react-feather';
+import { useEffect, useState, useMemo } from 'react';
+import { X, Plus, Trash, Save, Info } from 'react-feather';
 import type {
   DeckFieldMapping,
   DeckExampleFieldMapping,
 } from '../types/fieldMapping';
+import type { Flashcard } from '../store';
+import { getRawFields } from '../utils/flashcardMapping';
 import './DeckMappingModal.css';
 
 type FieldOption = {
@@ -17,6 +19,7 @@ interface DeckMappingModalProps {
   deckName?: string;
   fieldOptions: FieldOption[];
   initialMapping: DeckFieldMapping;
+  sampleCard?: Flashcard; // Add sample card to show all fields and example data
   onClose: () => void;
   onSave: (mapping: DeckFieldMapping) => void;
 }
@@ -27,6 +30,7 @@ export function DeckMappingModal({
   deckName,
   fieldOptions,
   initialMapping,
+  sampleCard,
   onClose,
   onSave,
 }: DeckMappingModalProps) {
@@ -54,10 +58,10 @@ export function DeckMappingModal({
     DeckExampleFieldMapping[]
   >(initialMapping.examples ?? []);
   const [frontExamplesEnabled, setFrontExamplesEnabled] = useState(
-    initialMapping.frontExamplesEnabled ?? true
+    initialMapping.frontExamplesEnabled ?? false
   );
   const [backExamplesEnabled, setBackExamplesEnabled] = useState(
-    initialMapping.backExamplesEnabled ?? true
+    initialMapping.backExamplesEnabled ?? false
   );
   const [tagFields, setTagFields] = useState(initialMapping.tagFields ?? []);
   const [tagsEnabled, setTagsEnabled] = useState(
@@ -80,8 +84,8 @@ export function DeckMappingModal({
     setBackSubTextField(initialMapping.back.subTextField ?? '');
     setBackHintField(initialMapping.back.hintField ?? '');
     setExampleMappings(initialMapping.examples ?? []);
-    setFrontExamplesEnabled(initialMapping.frontExamplesEnabled ?? true);
-    setBackExamplesEnabled(initialMapping.backExamplesEnabled ?? true);
+    setFrontExamplesEnabled(initialMapping.frontExamplesEnabled ?? false);
+    setBackExamplesEnabled(initialMapping.backExamplesEnabled ?? false);
     setTagFields(initialMapping.tagFields ?? []);
     setTagsEnabled(
       initialMapping.tagsEnabled ?? (initialMapping.tagFields?.length ?? 0) > 0
@@ -93,6 +97,111 @@ export function DeckMappingModal({
           Boolean(initialMapping.metadataEnabled))
     );
   }, [initialMapping]);
+
+  // Extract all fields from the sample card (including nested ones)
+  // Must be called before early return to follow Rules of Hooks
+  const allFields = useMemo(() => {
+    if (!sampleCard) return [];
+
+    const fields: Array<{
+      key: string;
+      type: string;
+      value: unknown;
+      path: string;
+    }> = [];
+
+    // Get raw fields using the same logic as the mapping utility
+    const rawFields = getRawFields(sampleCard);
+
+    // Helper to recursively extract all fields
+    const extractFields = (obj: unknown, prefix = '', path = ''): void => {
+      if (obj === null || obj === undefined) return;
+
+      if (Array.isArray(obj)) {
+        obj.forEach((item, index) => {
+          const newPath = path ? `${path}[${index}]` : `[${index}]`;
+          if (typeof item === 'object' && item !== null) {
+            extractFields(item, prefix, newPath);
+          } else {
+            fields.push({
+              key: prefix || newPath,
+              type: Array.isArray(item) ? 'array' : typeof item,
+              value: item,
+              path: newPath,
+            });
+          }
+        });
+      } else if (typeof obj === 'object') {
+        Object.entries(obj).forEach(([key, value]) => {
+          const newPath = path ? `${path}.${key}` : key;
+          const newPrefix = prefix ? `${prefix}.${key}` : key;
+
+          if (value === null || value === undefined) {
+            fields.push({ key: newPrefix, type: 'null', value, path: newPath });
+          } else if (Array.isArray(value)) {
+            fields.push({
+              key: newPrefix,
+              type: 'array',
+              value,
+              path: newPath,
+            });
+            extractFields(value, newPrefix, newPath);
+          } else if (typeof value === 'object') {
+            fields.push({
+              key: newPrefix,
+              type: 'object',
+              value,
+              path: newPath,
+            });
+            extractFields(value, newPrefix, newPath);
+          } else {
+            fields.push({
+              key: newPrefix,
+              type: typeof value,
+              value,
+              path: newPath,
+            });
+          }
+        });
+      }
+    };
+
+    extractFields(rawFields);
+
+    // Also add metadata fields
+    if (sampleCard.metadata) {
+      Object.entries(sampleCard.metadata).forEach(([key, value]) => {
+        fields.push({
+          key: `metadata.${key}`,
+          type: typeof value,
+          value,
+          path: `metadata.${key}`,
+        });
+      });
+    }
+
+    return fields.sort((a, b) => a.key.localeCompare(b.key));
+  }, [sampleCard]);
+
+  // Format JSON for display
+  // Must be called before early return to follow Rules of Hooks
+  const formattedJson = useMemo(() => {
+    if (!sampleCard) return null;
+
+    // Get raw fields using the same logic as the mapping utility
+    const rawFields = getRawFields(sampleCard);
+
+    // If no raw fields found, return empty object representation
+    if (Object.keys(rawFields).length === 0) {
+      return '{}';
+    }
+
+    try {
+      return JSON.stringify(rawFields, null, 2);
+    } catch {
+      return JSON.stringify(rawFields);
+    }
+  }, [sampleCard]);
 
   const handleAddExample = (side: 'front' | 'back') => {
     setExampleMappings(prev => [
@@ -168,7 +277,7 @@ export function DeckMappingModal({
       onChange={e => onChange(e.target.value)}
       required={required}
     >
-      {!value && <option value="">{placeholder}</option>}
+      <option value="">{placeholder}</option>
       {fieldOptions.map(option => (
         <option key={option.value} value={option.value}>
           {option.label}
@@ -405,6 +514,78 @@ export function DeckMappingModal({
     </div>
   );
 
+  const renderDataPreviewSection = () => {
+    if (!sampleCard) return null;
+
+    return (
+      <div className="mapping-section mapping-section--data-preview">
+        <div className="mapping-section-header">
+          <h4>
+            <Info size={16} />
+            Structure des données (exemple)
+          </h4>
+        </div>
+        <p className="mapping-section-helper">
+          Voici tous les champs disponibles dans la première carte de ce deck.
+          Utilisez ces informations pour configurer le mapping.
+        </p>
+
+        <div className="mapping-data-preview">
+          <div className="mapping-fields-list">
+            <h5>Tous les champs disponibles ({allFields.length})</h5>
+            <div className="mapping-fields-grid">
+              {allFields.map((field, index) => {
+                let displayValue: string;
+                if (typeof field.value === 'string') {
+                  displayValue =
+                    field.value.length > 50
+                      ? `${field.value.substring(0, 50)}...`
+                      : field.value;
+                } else if (
+                  typeof field.value === 'object' &&
+                  field.value !== null
+                ) {
+                  const jsonStr = JSON.stringify(field.value);
+                  displayValue =
+                    jsonStr.length > 50
+                      ? `${jsonStr.substring(0, 50)}...`
+                      : jsonStr;
+                } else {
+                  displayValue = String(field.value);
+                }
+
+                return (
+                  <div
+                    key={`field-${field.key}-${index}`}
+                    className="mapping-field-item"
+                  >
+                    <div className="mapping-field-key">
+                      <code>{field.key}</code>
+                      <span className="mapping-field-type">{field.type}</span>
+                    </div>
+                    <div className="mapping-field-value">{displayValue}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {formattedJson && (
+            <div className="mapping-json-preview">
+              <h5>JSON complet (première carte)</h5>
+              <details>
+                <summary>Voir le JSON complet</summary>
+                <pre className="mapping-json-code">
+                  <code>{formattedJson}</code>
+                </pre>
+              </details>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="mapping-modal-overlay">
       <div className="mapping-modal">
@@ -490,6 +671,8 @@ export function DeckMappingModal({
               </div>
             </div>
           </div>
+
+          {renderDataPreviewSection()}
 
           {renderExampleList('front')}
           {renderExampleList('back')}

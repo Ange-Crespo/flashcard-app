@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { DeckMappingModal } from '../DeckMappingModal';
 import React from 'react';
 import type { DeckFieldMapping } from '../../types/fieldMapping';
+import type { Flashcard } from '../../store';
 
 const baseMapping: DeckFieldMapping = {
   deckId: 'demo-deck',
@@ -127,6 +128,119 @@ describe('DeckMappingModal', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(/Les métadonnées ne seront pas affichées/i)
+    ).toBeInTheDocument();
+  });
+
+  it('displays data preview section with sample card fields and JSON', () => {
+    const sampleCard: Flashcard = {
+      id: 'test-card-1',
+      deckId: 'demo-deck',
+      front: {
+        title: 'Question',
+        text: 'What is the capital of France?',
+      },
+      back: {
+        title: 'Answer',
+        text: 'Paris',
+      },
+      extras: {
+        question: 'What is the capital of France?',
+        answer: 'Paris',
+        category: 'Geography',
+        difficulty: 'easy',
+        tags: ['france', 'capital'],
+        metadata: {
+          source: 'test',
+          year: 2024,
+        },
+      },
+    };
+
+    render(
+      <DeckMappingModal
+        isOpen
+        deckId="demo-deck"
+        deckName="Demo Deck"
+        fieldOptions={fieldOptions}
+        initialMapping={baseMapping}
+        sampleCard={sampleCard}
+        onClose={vi.fn()}
+        onSave={vi.fn()}
+      />
+    );
+
+    // Check that data preview section is rendered
+    expect(
+      screen.getByText(/Structure des données \(exemple\)/i)
+    ).toBeInTheDocument();
+
+    // Check that fields are displayed (should show fields from extras)
+    // Use getAllByText since the text appears in both helper and header
+    const fieldsHeaders = screen.getAllByText(/Tous les champs disponibles/i);
+    expect(fieldsHeaders.length).toBeGreaterThan(0);
+    // Check that we have fields (should show count > 0)
+    expect(
+      screen.getByText(/Tous les champs disponibles \(\d+\)/i)
+    ).toBeInTheDocument();
+
+    // Check that JSON preview section exists
+    const jsonHeader = screen.getByText(/JSON complet \(première carte\)/i);
+    expect(jsonHeader).toBeInTheDocument();
+
+    // Expand the JSON details
+    const jsonDetails = screen.getByText(/Voir le JSON complet/i);
+    fireEvent.click(jsonDetails);
+
+    // Check that JSON content is displayed (should contain the actual question text)
+    // The text appears in both field list and JSON, so use getAllByText
+    const questionTexts = screen.getAllByText(
+      /What is the capital of France\?/i
+    );
+    expect(questionTexts.length).toBeGreaterThan(0);
+
+    // Check that JSON code block contains the full JSON structure
+    const jsonCode = screen.getByText(
+      /"question": "What is the capital of France\?"/i
+    );
+    expect(jsonCode).toBeInTheDocument();
+    expect(screen.getByText(/"answer": "Paris"/i)).toBeInTheDocument();
+  });
+
+  it('displays empty state when sample card has no raw data', () => {
+    const sampleCard: Flashcard = {
+      id: 'test-card-2',
+      deckId: 'demo-deck',
+      front: {
+        title: 'Question',
+        text: 'Test question',
+      },
+      back: {
+        title: 'Answer',
+        text: 'Test answer',
+      },
+      // No extras or rawFields
+    };
+
+    render(
+      <DeckMappingModal
+        isOpen
+        deckId="demo-deck"
+        fieldOptions={fieldOptions}
+        initialMapping={baseMapping}
+        sampleCard={sampleCard}
+        onClose={vi.fn()}
+        onSave={vi.fn()}
+      />
+    );
+
+    // Data preview section should still be rendered
+    expect(
+      screen.getByText(/Structure des données \(exemple\)/i)
+    ).toBeInTheDocument();
+
+    // Should show 0 fields
+    expect(
+      screen.getByText(/Tous les champs disponibles \(0\)/i)
     ).toBeInTheDocument();
   });
 });

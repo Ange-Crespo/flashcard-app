@@ -38,7 +38,15 @@ export function FlashcardDeck() {
   const navigate = useNavigate();
   const [index, setIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [showFrontFirst, setShowFrontFirst] = useState(true);
+  // Load showFrontFirst preference from localStorage, default to true
+  const [showFrontFirst, setShowFrontFirst] = useState(() => {
+    try {
+      const saved = localStorage.getItem('flashcard_showFrontFirst');
+      return saved !== null ? saved === 'true' : true;
+    } catch {
+      return true;
+    }
+  });
   const [fieldMapping, setFieldMapping] = useState<DeckFieldMapping | null>(
     null
   );
@@ -50,8 +58,19 @@ export function FlashcardDeck() {
     setIsLoading(false);
   }, [loadProgress]);
 
+  // Save showFrontFirst preference to localStorage when it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('flashcard_showFrontFirst', String(showFrontFirst));
+    } catch (error) {
+      console.warn('Failed to save showFrontFirst preference:', error);
+    }
+  }, [showFrontFirst]);
+
   const cards = sortedFlashcards.length > 0 ? sortedFlashcards : flashcards;
-  const current = cards[index];
+  // Wrap index around to cycle through cards continuously (FSRS algorithm)
+  const wrappedIndex = cards.length > 0 ? index % cards.length : 0;
+  const current = cards[wrappedIndex];
   const deckId = current?.deckId ?? 'default';
   const deckName = current?.deckName;
 
@@ -77,6 +96,13 @@ export function FlashcardDeck() {
     return applyDeckFieldMapping(current, fieldMapping);
   }, [current, fieldMapping]);
 
+  // Reset index when cards change (e.g., after FSRS re-sorting) to prevent out-of-bounds
+  useEffect(() => {
+    if (cards.length > 0 && wrappedIndex >= cards.length) {
+      setIndex(0);
+    }
+  }, [cards.length, wrappedIndex]);
+
   // Handle refresh - reset to beginning of flashcards
   const handleRefresh = () => {
     setIndex(0);
@@ -98,6 +124,8 @@ export function FlashcardDeck() {
         showInfo('Marked as Unknown', 'Keep practicing!');
       }
 
+      // Always increment index - it will wrap around due to modulo in wrappedIndex
+      // This ensures continuous cycling through cards following FSRS schedule
       setIndex(v => v + 1);
     },
     [current, markAsKnown, markAsUnknown, showSuccess, showInfo]
@@ -174,6 +202,7 @@ export function FlashcardDeck() {
           deckName={deckName}
           fieldOptions={fieldOptions}
           initialMapping={fieldMapping ?? defaultMapping}
+          sampleCard={current}
           onClose={() => setIsMappingModalOpen(false)}
           onSave={mapping => {
             saveDeckFieldMapping(mapping);

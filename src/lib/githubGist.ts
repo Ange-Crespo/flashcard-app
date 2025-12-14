@@ -2,112 +2,14 @@
  * GitHub Gist API service for managing flashcards
  */
 
-import type {
-  GistFlashcard,
-  GistResponse,
-  GistError,
-  GistFlashcardFace,
-} from '../types/gist';
+import type { GistFlashcard, GistResponse, GistError } from '../types/gist';
 import {
   gistDebugLogger,
   formatGistError,
   createErrorContext,
   safeStringify,
 } from './gistDebug';
-
-/**
- * Mandarin word format from the Gist
- */
-interface MandarinWordEntry {
-  word: string;
-  useful_for_flashcard?: boolean;
-  cefr_level?: string;
-  english_translation?: string;
-  romanization?: string;
-  example_sentence_native?: string;
-  example_sentence_english?: string;
-  pos?: string;
-  word_frequency?: number;
-}
-
-/**
- * Convert Mandarin word format to GistFlashcard format
- */
-function convertMandarinToGistFlashcard(
-  entry: MandarinWordEntry,
-  index: number
-): GistFlashcard {
-  const front: GistFlashcardFace = {
-    title: 'Mot',
-    text: entry.word || '',
-    subText: entry.romanization,
-    hint: 'Touchez pour afficher la traduction',
-  };
-
-  const back: GistFlashcardFace = {
-    title: 'Traduction',
-    text: entry.english_translation || '',
-    hint: 'Balayez à droite si vous le connaissez, à gauche sinon',
-  };
-
-  const tags: string[] = [];
-  if (entry.pos) tags.push(entry.pos);
-  if (entry.cefr_level) tags.push(entry.cefr_level);
-
-  const examples = [];
-  if (entry.example_sentence_native && entry.example_sentence_english) {
-    examples.push({
-      label: 'Exemple',
-      text: entry.example_sentence_native,
-      translation: entry.example_sentence_english,
-    });
-  }
-
-  const metadata: Record<string, string | number> = {};
-  if (entry.pos) metadata['Part of Speech'] = entry.pos;
-  if (entry.cefr_level) metadata['Level'] = entry.cefr_level;
-  if (typeof entry.word_frequency === 'number') {
-    metadata['Frequency Rank'] = entry.word_frequency;
-  }
-
-  const id =
-    entry.word && entry.word.trim()
-      ? `mandarin-${entry.word.toLowerCase().replace(/\s+/g, '-')}-${index}`
-      : `mandarin-${index}`;
-
-  return {
-    id, // This ID will be replaced by hash-based ID in convertGistFlashcardToAppFlashcard
-    deckId: 'mandarin-gist', // Set a default deckId for hash generation
-    front,
-    back,
-    category: entry.cefr_level,
-    tags: tags.length > 0 ? tags : undefined,
-    language: 'mandarin',
-    difficulty: entry.cefr_level,
-    metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
-    examples: examples.length > 0 ? examples : undefined,
-    extras: {
-      source: 'mandarin.json',
-      word_frequency: entry.word_frequency,
-      useful_for_flashcard: entry.useful_for_flashcard,
-    },
-  };
-}
-
-/**
- * Check if data is in Mandarin format
- */
-function isMandarinFormat(data: unknown): data is MandarinWordEntry[] {
-  if (!Array.isArray(data)) return false;
-  if (data.length === 0) return false;
-  const first = data[0];
-  return (
-    typeof first === 'object' &&
-    first !== null &&
-    'word' in first &&
-    'english_translation' in first
-  );
-}
+import { convertGenericFlashcards } from './genericFlashcardConverter';
 
 // Re-export types for backward compatibility
 export type { GistResponse, GistError } from '../types/gist';
@@ -724,67 +626,13 @@ class GitHubGistService {
               length: Array.isArray(parsed) ? parsed.length : 'N/A',
             });
 
-            // Check if it's in Mandarin format and convert
+            // Check format and convert using generic converter
             gistDebugLogger.log(
               'validate_flashcards',
               'Vérification du format des données'
             );
-            if (isMandarinFormat(parsed)) {
-              gistDebugLogger.log(
-                'convert_format',
-                'Format Mandarin détecté, conversion en cours',
-                {
-                  entriesCount: parsed.length,
-                }
-              );
-              const flashcards: GistFlashcard[] = parsed
-                .filter(
-                  (entry: MandarinWordEntry) =>
-                    entry.useful_for_flashcard !== false &&
-                    entry.word &&
-                    entry.english_translation
-                )
-                .map((entry: MandarinWordEntry, index: number) =>
-                  convertMandarinToGistFlashcard(entry, index)
-                );
 
-              gistDebugLogger.log('convert_format', 'Conversion terminée', {
-                originalCount: parsed.length,
-                convertedCount: flashcards.length,
-              });
-
-              if (flashcards.length > 0) {
-                gistDebugLogger.success(
-                  'complete',
-                  'Flashcards chargées avec succès depuis URL directe',
-                  {
-                    flashcardsCount: flashcards.length,
-                    source: 'raw_url',
-                  }
-                );
-                return {
-                  success: true,
-                  flashcards,
-                };
-              } else {
-                const errorMsg =
-                  'Aucune flashcard valide après conversion du format Mandarin';
-                gistDebugLogger.error(
-                  'validate_flashcards',
-                  errorMsg,
-                  new Error(errorMsg),
-                  {
-                    originalCount: parsed.length,
-                  }
-                );
-                return {
-                  success: false,
-                  error: formatGistError('validate_flashcards', errorMsg),
-                };
-              }
-            }
-
-            // Otherwise, treat as standard GistFlashcard format
+            // Try standard GistFlashcard format first
             if (Array.isArray(parsed)) {
               gistDebugLogger.log(
                 'validate_flashcards',
@@ -813,6 +661,32 @@ class GitHubGistService {
                   flashcards,
                 };
               }
+
+              // Try generic converter as fallback
+              gistDebugLogger.log(
+                'convert_format',
+                'Format standard invalide, tentative de conversion générique',
+                {
+                  arrayLength: parsed.length,
+                }
+              );
+              const genericResult = convertGenericFlashcards(parsed);
+              if (genericResult.success && genericResult.flashcards) {
+                gistDebugLogger.success(
+                  'complete',
+                  'Flashcards chargées avec succès via convertisseur générique',
+                  {
+                    flashcardsCount: genericResult.flashcards.length,
+                    source: 'raw_url',
+                    format: 'generic',
+                  }
+                );
+                return {
+                  success: true,
+                  flashcards: genericResult.flashcards,
+                };
+              }
+
               const errorMsg =
                 'Le fichier ne contient pas de flashcards valides (structure invalide)';
               gistDebugLogger.error(
@@ -825,11 +699,38 @@ class GitHubGistService {
                     flashcards.length > 0 ? !!flashcards[0].id : false,
                   firstCardHasFront:
                     flashcards.length > 0 ? !!flashcards[0].front : false,
+                  genericError: genericResult.error,
                 }
               );
               return {
                 success: false,
                 error: formatGistError('validate_flashcards', errorMsg),
+              };
+            }
+
+            // Try generic converter for non-array data (might have _config wrapper)
+            gistDebugLogger.log(
+              'convert_format',
+              'Tentative de conversion générique pour format non-standard',
+              {
+                dataType: typeof parsed,
+                isArray: Array.isArray(parsed),
+              }
+            );
+            const genericResult = convertGenericFlashcards(parsed);
+            if (genericResult.success && genericResult.flashcards) {
+              gistDebugLogger.success(
+                'complete',
+                'Flashcards chargées avec succès via convertisseur générique',
+                {
+                  flashcardsCount: genericResult.flashcards.length,
+                  source: 'raw_url',
+                  format: 'generic',
+                }
+              );
+              return {
+                success: true,
+                flashcards: genericResult.flashcards,
               };
             }
 
@@ -997,7 +898,6 @@ class GitHubGistService {
           if (jsonFiles.length > 0) {
             // Prefer files that might contain flashcards
             const preferredNames = [
-              'mandarin.json',
               'flashcards.json',
               'cards.json',
               'deck.json',
@@ -1052,69 +952,16 @@ class GitHubGistService {
               }
             );
 
-            // Check if it's in Mandarin format and convert
-            if (isMandarinFormat(parsed)) {
-              gistDebugLogger.log(
-                'convert_format',
-                'Format Mandarin détecté, conversion en cours',
-                {
-                  fileName,
-                  entriesCount: parsed.length,
-                }
-              );
-              const flashcards: GistFlashcard[] = parsed
-                .filter(
-                  (entry: MandarinWordEntry) =>
-                    entry.useful_for_flashcard !== false &&
-                    entry.word &&
-                    entry.english_translation
-                )
-                .map((entry: MandarinWordEntry, index: number) =>
-                  convertMandarinToGistFlashcard(entry, index)
-                );
-
-              gistDebugLogger.log('convert_format', 'Conversion terminée', {
+            // Check format and convert using generic converter
+            gistDebugLogger.log(
+              'validate_flashcards',
+              'Vérification du format des données',
+              {
                 fileName,
-                originalCount: parsed.length,
-                convertedCount: flashcards.length,
-              });
-
-              if (flashcards.length > 0) {
-                gistDebugLogger.success(
-                  'complete',
-                  'Flashcards chargées avec succès depuis API',
-                  {
-                    flashcardsCount: flashcards.length,
-                    source: 'api',
-                    fileName,
-                    format: 'mandarin',
-                  }
-                );
-                return {
-                  success: true,
-                  flashcards,
-                };
-              } else {
-                const errorMsg = `Aucune flashcard valide après conversion du format Mandarin dans ${fileName}`;
-                gistDebugLogger.error(
-                  'validate_flashcards',
-                  errorMsg,
-                  new Error(errorMsg),
-                  {
-                    fileName,
-                    originalCount: parsed.length,
-                  }
-                );
-                return {
-                  success: false,
-                  error: formatGistError('validate_flashcards', errorMsg, {
-                    fileName,
-                  }),
-                };
               }
-            }
+            );
 
-            // Otherwise, treat as standard GistFlashcard format
+            // Try standard GistFlashcard format first
             if (Array.isArray(parsed)) {
               gistDebugLogger.log(
                 'validate_flashcards',
@@ -1144,28 +991,84 @@ class GitHubGistService {
                   success: true,
                   flashcards,
                 };
-              } else {
-                const errorMsg = `Le fichier ${fileName} ne contient pas de flashcards valides (structure invalide)`;
-                gistDebugLogger.error(
-                  'validate_flashcards',
-                  errorMsg,
-                  new Error(errorMsg),
+              }
+
+              // Try generic converter as fallback
+              gistDebugLogger.log(
+                'convert_format',
+                'Format standard invalide, tentative de conversion générique',
+                {
+                  fileName,
+                  arrayLength: parsed.length,
+                }
+              );
+              const genericResult = convertGenericFlashcards(parsed, fileName);
+              if (genericResult.success && genericResult.flashcards) {
+                gistDebugLogger.success(
+                  'complete',
+                  'Flashcards chargées avec succès via convertisseur générique',
                   {
+                    flashcardsCount: genericResult.flashcards.length,
+                    source: 'api',
                     fileName,
-                    arrayLength: flashcards.length,
-                    firstCardHasId:
-                      flashcards.length > 0 ? !!flashcards[0].id : false,
-                    firstCardHasFront:
-                      flashcards.length > 0 ? !!flashcards[0].front : false,
+                    format: 'generic',
                   }
                 );
                 return {
-                  success: false,
-                  error: formatGistError('validate_flashcards', errorMsg, {
-                    fileName,
-                  }),
+                  success: true,
+                  flashcards: genericResult.flashcards,
                 };
               }
+
+              const errorMsg = `Le fichier ${fileName} ne contient pas de flashcards valides (structure invalide)`;
+              gistDebugLogger.error(
+                'validate_flashcards',
+                errorMsg,
+                new Error(errorMsg),
+                {
+                  fileName,
+                  arrayLength: flashcards.length,
+                  firstCardHasId:
+                    flashcards.length > 0 ? !!flashcards[0].id : false,
+                  firstCardHasFront:
+                    flashcards.length > 0 ? !!flashcards[0].front : false,
+                  genericError: genericResult.error,
+                }
+              );
+              return {
+                success: false,
+                error: formatGistError('validate_flashcards', errorMsg, {
+                  fileName,
+                }),
+              };
+            }
+
+            // Try generic converter for non-array data (might have _config wrapper)
+            gistDebugLogger.log(
+              'convert_format',
+              'Tentative de conversion générique pour format non-standard',
+              {
+                fileName,
+                dataType: typeof parsed,
+                isArray: Array.isArray(parsed),
+              }
+            );
+            const genericResult = convertGenericFlashcards(parsed, fileName);
+            if (genericResult.success && genericResult.flashcards) {
+              gistDebugLogger.success(
+                'complete',
+                'Flashcards chargées avec succès via convertisseur générique',
+                {
+                  flashcardsCount: genericResult.flashcards.length,
+                  source: 'api',
+                  fileName,
+                  format: 'generic',
+                }
+              );
+              return {
+                success: true,
+                flashcards: genericResult.flashcards,
+              };
             }
 
             const errorMsg = `Le fichier ${fileName} doit contenir un tableau de flashcards`;
@@ -1376,18 +1279,36 @@ class GitHubGistService {
               owner: resolvedOwner,
             }
           );
-          const rawUrl = this.buildRawFileUrl(gistId, 'flashcards.json');
-          gistDebugLogger.log('build_url', "Construction de l'URL raw", {
-            rawUrl: rawUrl || 'null',
-            gistId: resolvedId,
-            owner: resolvedOwner,
-          });
 
-          if (rawUrl) {
+          // Try multiple common file names
+          const commonFileNames = [
+            'flashcards.json',
+            'cards.json',
+            'deck.json',
+            'data.json',
+            'SQuaD.json',
+            'squad.json',
+            'qa.json',
+            'mandarin.json',
+          ];
+
+          let lastError: string | undefined;
+
+          for (const fileName of commonFileNames) {
+            const rawUrl = this.buildRawFileUrl(gistId, fileName);
+            gistDebugLogger.log('build_url', "Construction de l'URL raw", {
+              rawUrl: rawUrl || 'null',
+              fileName,
+              gistId: resolvedId,
+              owner: resolvedOwner,
+            });
+
+            if (!rawUrl) continue;
+
             try {
               gistDebugLogger.log(
                 'fetch_raw_url',
-                'Envoi de la requête vers raw URL (fallback 404)'
+                `Envoi de la requête vers raw URL (fallback 404) - ${fileName}`
               );
               const rawResponse = await fetch(rawUrl, {
                 mode: 'cors',
@@ -1398,6 +1319,7 @@ class GitHubGistService {
                 'parse_response',
                 'Réponse reçue du raw URL (fallback)',
                 {
+                  fileName,
                   status: rawResponse.status,
                   statusText: rawResponse.statusText,
                   ok: rawResponse.ok,
@@ -1407,23 +1329,14 @@ class GitHubGistService {
 
               if (!rawResponse.ok) {
                 if (rawResponse.status === 404) {
-                  const errorMsg =
-                    'Aucun fichier flashcards.json trouvé dans le Gist';
-                  gistDebugLogger.error(
-                    'fetch_raw_url',
-                    errorMsg,
-                    new Error(errorMsg),
-                    {
-                      status: rawResponse.status,
-                      rawUrl: rawUrl.substring(0, 100),
-                    }
-                  );
-                  return {
-                    success: false,
-                    error: formatGistError('fetch_raw_url', errorMsg, {
-                      statusCode: rawResponse.status,
-                    }),
-                  };
+                  lastError = `Aucun fichier ${fileName} trouvé dans le Gist`;
+                  gistDebugLogger.warn('fetch_raw_url', lastError, {
+                    status: rawResponse.status,
+                    fileName,
+                    rawUrl: rawUrl.substring(0, 100),
+                  });
+                  // Try next file name
+                  continue;
                 }
                 const errorMsg = `Erreur lors de la lecture du Gist (${rawResponse.status}): ${rawResponse.statusText}`;
                 gistDebugLogger.error(
@@ -1493,68 +1406,13 @@ class GitHubGistService {
                   }
                 );
 
-                // Check if it's in Mandarin format and convert
-                if (isMandarinFormat(parsed)) {
-                  gistDebugLogger.log(
-                    'convert_format',
-                    'Format Mandarin détecté (fallback), conversion en cours',
-                    {
-                      entriesCount: parsed.length,
-                    }
-                  );
-                  const flashcards: GistFlashcard[] = parsed
-                    .filter(
-                      (entry: MandarinWordEntry) =>
-                        entry.useful_for_flashcard !== false &&
-                        entry.word &&
-                        entry.english_translation
-                    )
-                    .map((entry: MandarinWordEntry, index: number) =>
-                      convertMandarinToGistFlashcard(entry, index)
-                    );
+                // Check format and convert using generic converter (fallback)
+                gistDebugLogger.log(
+                  'validate_flashcards',
+                  'Vérification du format des données (fallback)'
+                );
 
-                  gistDebugLogger.log(
-                    'convert_format',
-                    'Conversion terminée (fallback)',
-                    {
-                      originalCount: parsed.length,
-                      convertedCount: flashcards.length,
-                    }
-                  );
-
-                  if (flashcards.length > 0) {
-                    gistDebugLogger.success(
-                      'complete',
-                      'Flashcards chargées avec succès depuis raw URL (fallback 404)',
-                      {
-                        flashcardsCount: flashcards.length,
-                        source: 'raw_url_404_fallback',
-                        format: 'mandarin',
-                      }
-                    );
-                    return {
-                      success: true,
-                      flashcards,
-                    };
-                  } else {
-                    const errorMsg =
-                      'Aucune flashcard valide après conversion du format Mandarin (fallback)';
-                    gistDebugLogger.error(
-                      'validate_flashcards',
-                      errorMsg,
-                      new Error(errorMsg),
-                      {
-                        originalCount: parsed.length,
-                      }
-                    );
-                    return {
-                      success: false,
-                      error: formatGistError('validate_flashcards', errorMsg),
-                    };
-                  }
-                }
-
-                // Otherwise, treat as standard GistFlashcard format
+                // Try standard GistFlashcard format first
                 if (Array.isArray(parsed)) {
                   gistDebugLogger.log(
                     'validate_flashcards',
@@ -1583,6 +1441,32 @@ class GitHubGistService {
                       flashcards,
                     };
                   }
+
+                  // Try generic converter as fallback
+                  gistDebugLogger.log(
+                    'convert_format',
+                    'Format standard invalide (fallback), tentative de conversion générique',
+                    {
+                      arrayLength: parsed.length,
+                    }
+                  );
+                  const genericResult = convertGenericFlashcards(parsed);
+                  if (genericResult.success && genericResult.flashcards) {
+                    gistDebugLogger.success(
+                      'complete',
+                      'Flashcards chargées avec succès via convertisseur générique (fallback)',
+                      {
+                        flashcardsCount: genericResult.flashcards.length,
+                        source: 'raw_url_404_fallback',
+                        format: 'generic',
+                      }
+                    );
+                    return {
+                      success: true,
+                      flashcards: genericResult.flashcards,
+                    };
+                  }
+
                   const errorMsg =
                     'Le fichier doit contenir un tableau de flashcards valides';
                   gistDebugLogger.error(
@@ -1595,11 +1479,38 @@ class GitHubGistService {
                         flashcards.length > 0 ? !!flashcards[0].id : false,
                       firstCardHasFront:
                         flashcards.length > 0 ? !!flashcards[0].front : false,
+                      genericError: genericResult.error,
                     }
                   );
                   return {
                     success: false,
                     error: formatGistError('validate_flashcards', errorMsg),
+                  };
+                }
+
+                // Try generic converter for non-array data (fallback)
+                gistDebugLogger.log(
+                  'convert_format',
+                  'Tentative de conversion générique pour format non-standard (fallback)',
+                  {
+                    dataType: typeof parsed,
+                    isArray: Array.isArray(parsed),
+                  }
+                );
+                const genericResult = convertGenericFlashcards(parsed);
+                if (genericResult.success && genericResult.flashcards) {
+                  gistDebugLogger.success(
+                    'complete',
+                    'Flashcards chargées avec succès via convertisseur générique (fallback)',
+                    {
+                      flashcardsCount: genericResult.flashcards.length,
+                      source: 'raw_url_404_fallback',
+                      format: 'generic',
+                    }
+                  );
+                  return {
+                    success: true,
+                    flashcards: genericResult.flashcards,
                   };
                 }
 
@@ -1630,26 +1541,39 @@ class GitHubGistService {
                 };
               }
             } catch (fetchError) {
-              const errorMsg =
-                "Impossible d'accéder au fichier flashcards.json";
-              gistDebugLogger.error('fetch_raw_url', errorMsg, fetchError, {
+              const errorMsg = `Impossible d'accéder au fichier ${fileName}: ${fetchError instanceof Error ? fetchError.message : 'Erreur de connexion'}`;
+              gistDebugLogger.warn('fetch_raw_url', errorMsg, {
+                fileName,
                 rawUrl: rawUrl.substring(0, 100),
+                error:
+                  fetchError instanceof Error
+                    ? fetchError.message
+                    : String(fetchError),
               });
-              return {
-                success: false,
-                error: formatGistError('fetch_raw_url', errorMsg),
-              };
+              // Try next file name
+              continue;
             }
-          } else {
-            gistDebugLogger.warn(
-              'build_url',
-              "Impossible de construire l'URL raw (owner ou ID manquant)",
-              {
-                gistId: resolvedId,
-                owner: resolvedOwner,
-              }
-            );
           }
+
+          // If we tried all file names and none worked, return error
+          const errorMsg =
+            lastError || 'Aucun fichier JSON valide trouvé dans le Gist';
+          gistDebugLogger.error(
+            'fetch_raw_url',
+            errorMsg,
+            new Error(errorMsg),
+            {
+              gistId: resolvedId,
+              owner: resolvedOwner,
+              triedFiles: commonFileNames,
+            }
+          );
+          return {
+            success: false,
+            error: formatGistError('fetch_raw_url', errorMsg, {
+              gistId: resolvedId,
+            }),
+          };
         }
 
         // For other API errors, return the error message directly

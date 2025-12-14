@@ -130,18 +130,82 @@ export async function fetchGistDeckCatalog(
     throw new Error('Le JSON du Gist doit être une liste de decks.');
   }
 
-  const decks: GistDeckDescriptor[] = parsed.map(item => ({
-    id: item.id,
-    owner: item.owner ?? data.owner?.login ?? owner ?? 'inconnu',
-    name: item.name,
-    description: item.description,
-    language: item.language,
-    sizeHint: item.sizeHint,
-    gistUrl:
-      item.gistUrl ??
-      `https://gist.github.com/${item.owner ?? data.owner?.login ?? owner}/${item.id}`,
-    rawUrl: item.rawUrl,
-  }));
+  const decks: GistDeckDescriptor[] = parsed.map(item => {
+    // Check if gistUrl is a raw URL
+    const isGistUrlRaw =
+      item.gistUrl?.includes('gist.githubusercontent.com') ||
+      item.gistUrl?.includes('/raw/');
+
+    // Use rawUrl from item, or gistUrlRaw, or gistUrl if it's a raw URL (prioritize explicit rawUrl)
+    const rawUrl =
+      item.rawUrl ??
+      item.gistUrlRaw ??
+      (isGistUrlRaw ? item.gistUrl : undefined);
+
+    // Extract Gist ID and owner from raw URL if provided
+    let gistId = item.id;
+    let gistOwner = item.owner ?? data.owner?.login ?? owner ?? 'inconnu';
+
+    if (rawUrl) {
+      try {
+        // Extract from raw URL: https://gist.githubusercontent.com/{owner}/{gistId}/raw/{commitHash}/filename
+        // or: https://gist.githubusercontent.com/{owner}/{gistId}/raw/filename
+        // The regex matches: owner, gistId, then /raw/ (we don't care about what comes after)
+        const urlMatch = rawUrl.match(
+          /gist\.githubusercontent\.com\/([^/]+)\/([a-f0-9]+)\/raw\//
+        );
+        if (urlMatch) {
+          gistOwner = urlMatch[1];
+          gistId = urlMatch[2];
+          console.log(
+            `[GistCatalog] Extracted from rawUrl: owner=${gistOwner}, id=${gistId}, rawUrl=${rawUrl.substring(0, 80)}...`
+          );
+        } else {
+          console.warn(
+            `[GistCatalog] Could not extract Gist ID from rawUrl: ${rawUrl.substring(0, 80)}...`
+          );
+        }
+      } catch (error) {
+        console.error('[GistCatalog] Error parsing rawUrl:', error);
+        // If parsing fails, use original values
+      }
+    } else {
+      console.log(
+        `[GistCatalog] No rawUrl found for deck: ${item.name || item.id}`
+      );
+    }
+
+    // Construct regular Gist URL for display (or use provided gistUrl if it's not a raw URL)
+    let regularGistUrl = item.gistUrl;
+    if (
+      !regularGistUrl ||
+      regularGistUrl.includes('gist.githubusercontent.com')
+    ) {
+      // If gistUrl is a raw URL or not provided, construct the regular URL
+      regularGistUrl = `https://gist.github.com/${gistOwner}/${gistId}`;
+    }
+
+    const deck = {
+      id: gistId,
+      owner: gistOwner,
+      name: item.name,
+      description: item.description,
+      language: item.language,
+      sizeHint: item.sizeHint,
+      gistUrl: regularGistUrl,
+      rawUrl, // Use the raw URL as-is from the catalog
+    };
+
+    console.log(`[GistCatalog] Processed deck:`, {
+      name: deck.name,
+      id: deck.id,
+      owner: deck.owner,
+      hasRawUrl: !!deck.rawUrl,
+      rawUrl: deck.rawUrl?.substring(0, 80),
+    });
+
+    return deck;
+  });
 
   return {
     decks,

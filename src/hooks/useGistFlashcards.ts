@@ -113,11 +113,36 @@ export function useGistFlashcards({
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Extract Gist ID and owner from rawUrl if provided (to fix wrong IDs in stored selection)
+  let effectiveGistId = gistId;
+  let effectiveGistOwner = gistOwner;
+
+  if (rawUrl) {
+    try {
+      const urlMatch = rawUrl.match(
+        /gist\.githubusercontent\.com\/([^/]+)\/([a-f0-9]+)\/raw\//
+      );
+      if (urlMatch) {
+        effectiveGistOwner = urlMatch[1];
+        effectiveGistId = urlMatch[2];
+        console.log(
+          `[useGistFlashcards] Extracted from rawUrl: owner=${effectiveGistOwner}, id=${effectiveGistId}`
+        );
+      }
+    } catch (error) {
+      console.warn(
+        '[useGistFlashcards] Could not extract Gist ID from rawUrl:',
+        error
+      );
+    }
+  }
+
   const [currentGistId, setCurrentGistId] = useState<string | undefined>(
-    gistId
+    effectiveGistId
   );
   const [currentGistOwner, setCurrentGistOwner] = useState<string | undefined>(
-    gistOwner
+    effectiveGistOwner
   );
 
   // Use refs to track loading state and prevent infinite loops
